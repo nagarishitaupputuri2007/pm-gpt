@@ -1,7 +1,5 @@
 import sys
 import os
-
-# Allow imports from project root
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import streamlit as st
@@ -11,86 +9,71 @@ from nlp.sentiment import SentimentAnalyzer
 from nlp.clustering import ProblemClusterer
 from product.problem_mapper import ProblemMapper
 from product.feature_generator import FeatureGenerator
-from product.rice_scoring import RiceScorer
+from product.strategy_resolver import StrategyResolver
 from roadmap.roadmap_generator import RoadmapGenerator
 
 
-# -------------------- PAGE CONFIG --------------------
-st.set_page_config(
-    page_title="PM-GPT",
-    layout="wide"
-)
-
-# -------------------- HEADER --------------------
+# ---------- UI CONFIG ----------
+st.set_page_config(page_title="PM-GPT", layout="wide")
 st.title("🧠 PM-GPT")
 st.caption("AI Co-Pilot for Product Managers")
 
-st.markdown(
-    """
-PM-GPT helps Product Managers:
-- Understand user feedback  
-- Identify core product problems  
-- Generate feature ideas  
-- Prioritize using PM frameworks (RICE)  
-- Build data-driven roadmaps  
-"""
-)
+st.markdown("""
+PM-GPT analyzes feedback and applies **Product Management frameworks**
+to help you make better decisions.
+""")
 
 st.divider()
 
-# -------------------- INITIALIZE COMPONENTS --------------------
+# ---------- INIT ----------
 cleaner = TextCleaner()
-sentiment_analyzer = SentimentAnalyzer()
+sentiment = SentimentAnalyzer()
 clusterer = ProblemClusterer(num_clusters=2)
-problem_mapper = ProblemMapper()
-feature_generator = FeatureGenerator()
-rice_scorer = RiceScorer()
+mapper = ProblemMapper()
+generator = FeatureGenerator()
+resolver = StrategyResolver()
 roadmap_generator = RoadmapGenerator()
 
-# -------------------- INPUT --------------------
-st.header("📥 Input: User Feedback")
-
-feedback = st.text_area(
-    "Enter one feedback per line",
-    height=200,
-    placeholder="Payment failed again...\nSearch results are inaccurate..."
+# ---------- FRAMEWORK ----------
+st.header("⚙️ Prioritization Framework")
+framework = st.selectbox(
+    "Select framework",
+    ["RICE", "ICE", "MoSCoW", "Kano"]
 )
 
-# -------------------- ACTION --------------------
-if st.button("🚀 Generate PM Insights"):
+strategy = resolver.resolve(framework)
 
+st.divider()
+
+# ---------- INPUT ----------
+feedback = st.text_area(
+    "Enter user feedback (one per line)",
+    height=200,
+    placeholder="Payment failed again\nSearch results are inaccurate"
+)
+
+if st.button("🚀 Generate PM Insights"):
     if not feedback.strip():
-        st.warning("Please enter user feedback.")
+        st.warning("Please enter feedback")
         st.stop()
 
     feedbacks = feedback.split("\n")
+    cleaned = [cleaner.clean(f) for f in feedbacks if cleaner.clean(f)]
 
-    # -------- TEXT CLEANING --------
-    cleaned_feedbacks = [cleaner.clean(f) for f in feedbacks]
+    clusters = clusterer.cluster(cleaned)
 
-    st.divider()
-    st.header("🧹 Cleaned Feedback")
-    for text in cleaned_feedbacks:
-        st.write("-", text)
-
-    # -------- CLUSTERING (PROBLEMS) --------
-    clusters = clusterer.cluster(cleaned_feedbacks)
-
-    st.divider()
-    st.header("🔍 Detected Product Problems")
-
+    st.header("🔍 Product Problems")
     scored_features = []
 
-    for cluster_items in clusters.values():
-        problem = problem_mapper.map_problem(cluster_items)
+    for items in clusters.values():
+        problem = mapper.map_problem(items)
         st.subheader(problem)
 
-        for item in cluster_items:
-            sentiment = sentiment_analyzer.analyze(item)
-            st.write(f"- {item} _(urgency: {sentiment['compound']})_")
+        for i in items:
+            s = sentiment.analyze(i)
+            st.write(f"- {i} _(urgency: {s['compound']})_")
 
-        # -------- FEATURE GENERATION --------
-        features = feature_generator.generate_features(problem)
+        features = generator.generate_features(problem)
 
         for feature in features:
             metrics = {
@@ -100,19 +83,31 @@ if st.button("🚀 Generate PM Insights"):
                 "effort": 2
             }
 
-            score = rice_scorer.score(feature, metrics)
+            score = (
+                metrics["reach"]
+                * metrics["impact"]
+                * metrics["confidence"]
+            ) / metrics["effort"]
+
             scored_features.append({
                 "feature": feature,
                 "score": score
             })
 
-    # -------- ROADMAP --------
     st.divider()
-    st.header("📊 Prioritized Roadmap")
+    st.header("📊 Prioritization Output")
 
-    roadmap = roadmap_generator.generate(scored_features)
+    result = strategy.prioritize(scored_features)
 
-    for phase, features in roadmap.items():
-        st.subheader(phase)
-        for feature in features:
-            st.write("-", feature)
+    # ---------- OUTPUT ----------
+    if framework in ["MoSCoW", "Kano"]:
+        for bucket, items in result.items():
+            st.subheader(bucket)
+            for f in items:
+                st.write("-", f)
+    else:
+        roadmap = roadmap_generator.generate(result)
+        for phase, items in roadmap.items():
+            st.subheader(phase)
+            for f in items:
+                st.write("-", f)

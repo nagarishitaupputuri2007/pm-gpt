@@ -2,50 +2,71 @@ from abc import ABC, abstractmethod
 
 
 class PrioritizationStrategy(ABC):
-    """
-    Abstract base class for all prioritization frameworks.
-    """
-
     @abstractmethod
-    def score(self, feature: str, metrics: dict) -> float:
-        pass
-
-    @abstractmethod
-    def name(self) -> str:
+    def prioritize(self, features):
         pass
 
 
+# ---------- RICE ----------
 class RICEStrategy(PrioritizationStrategy):
-    """
-    RICE = (Reach × Impact × Confidence) / Effort
-    """
-
-    def name(self) -> str:
-        return "RICE"
-
-    def score(self, feature: str, metrics: dict) -> float:
-        reach = metrics.get("reach", 0)
-        impact = metrics.get("impact", 0)
-        confidence = metrics.get("confidence", 0)
-        effort = metrics.get("effort", 1)
-
-        if effort == 0:
-            effort = 1
-
-        return (reach * impact * confidence) / effort
+    def prioritize(self, features):
+        return sorted(features, key=lambda x: x["score"], reverse=True)
 
 
+# ---------- ICE ----------
 class ICEStrategy(PrioritizationStrategy):
+    def prioritize(self, features):
+        return sorted(features, key=lambda x: x["score"], reverse=True)
+
+
+# ---------- MoSCoW ----------
+class MoSCoWStrategy(PrioritizationStrategy):
+    def prioritize(self, features):
+        buckets = {
+            "Must Have": [],
+            "Should Have": [],
+            "Could Have": [],
+            "Won't Have": []
+        }
+
+        for f in features:
+            score = f["score"]
+            name = f["feature"]
+
+            if score >= 7:
+                buckets["Must Have"].append(name)
+            elif score >= 5:
+                buckets["Should Have"].append(name)
+            elif score >= 3:
+                buckets["Could Have"].append(name)
+            else:
+                buckets["Won't Have"].append(name)
+
+        return buckets
+
+
+# ---------- KANO ----------
+class KanoStrategy(PrioritizationStrategy):
     """
-    ICE = Impact × Confidence × Ease
+    Categorizes features based on Kano Model.
     """
 
-    def name(self) -> str:
-        return "ICE"
+    def prioritize(self, features):
+        kano = {
+            "Must-Be Features": [],
+            "Performance Features": [],
+            "Delighter Features": []
+        }
 
-    def score(self, feature: str, metrics: dict) -> float:
-        impact = metrics.get("impact", 0)
-        confidence = metrics.get("confidence", 0)
-        ease = metrics.get("ease", 0)
+        for f in features:
+            score = f["score"]
+            name = f["feature"]
 
-        return impact * confidence * ease
+            if score >= 7:
+                kano["Must-Be Features"].append(name)
+            elif score >= 4:
+                kano["Performance Features"].append(name)
+            else:
+                kano["Delighter Features"].append(name)
+
+        return kano

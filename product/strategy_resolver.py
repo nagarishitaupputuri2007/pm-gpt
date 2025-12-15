@@ -1,14 +1,21 @@
-from product.prioritization_strategy import RICEStrategy, ICEStrategy
+from product.prioritization_strategy import (
+    RICEStrategy,
+    ICEStrategy,
+    MoSCoWStrategy,
+    KanoStrategy
+)
 
 
 class StrategyResolver:
-    """
-    Resolves framework name to actual strategy implementation.
-    """
-
     def resolve(self, framework_name: str):
         if framework_name == "ICE":
             return ICEStrategy()
 
-        # Default fallback
+        if framework_name == "MoSCoW":
+            return MoSCoWStrategy()
+
+        if framework_name == "Kano":
+            return KanoStrategy()
+
+        # Default
         return RICEStrategy()
