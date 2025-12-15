@@ -1,12 +1,16 @@
 from nlp.text_cleaner import TextCleaner
 from nlp.sentiment import SentimentAnalyzer
 from nlp.clustering import ProblemClusterer
+from product.problem_mapper import ProblemMapper
+from product.feature_generator import FeatureGenerator
 
 
 if __name__ == "__main__":
     cleaner = TextCleaner()
     sentiment_analyzer = SentimentAnalyzer()
     clusterer = ProblemClusterer(num_clusters=2)
+    problem_mapper = ProblemMapper()
+    feature_generator = FeatureGenerator()
 
     feedbacks = [
         "Payment failed again and I am very frustrated",
@@ -15,17 +19,16 @@ if __name__ == "__main__":
         "I cannot find relevant products using search"
     ]
 
-    # Step 1: Clean text
     cleaned_texts = [cleaner.clean(text) for text in feedbacks]
-
-    # Step 2: Cluster into product problems
     clusters = clusterer.cluster(cleaned_texts)
 
-    # Step 3: Add sentiment as urgency signal
-    print("\nDetected Product Problems:\n")
+    print("\nPM-GPT Insights:\n")
+
     for cluster_id, items in clusters.items():
-        print(f"Problem Cluster {cluster_id}:")
-        for item in items:
-            sentiment = sentiment_analyzer.analyze(item)
-            print(f" - {item} | urgency (compound): {sentiment['compound']}")
+        problem = problem_mapper.map_problem(items)
+        features = feature_generator.generate_features(problem)
+
+        print(f"Problem {cluster_id}: {problem}")
+        for feature in features:
+            print(f"  - Feature idea: {feature}")
         print()
