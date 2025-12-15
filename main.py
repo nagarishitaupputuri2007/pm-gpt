@@ -4,6 +4,7 @@ from nlp.clustering import ProblemClusterer
 from product.problem_mapper import ProblemMapper
 from product.feature_generator import FeatureGenerator
 from product.rice_scoring import RiceScorer
+from roadmap.roadmap_generator import RoadmapGenerator
 
 
 if __name__ == "__main__":
@@ -13,6 +14,7 @@ if __name__ == "__main__":
     problem_mapper = ProblemMapper()
     feature_generator = FeatureGenerator()
     rice_scorer = RiceScorer()
+    roadmap_generator = RoadmapGenerator()
 
     feedbacks = [
         "Payment failed again and I am very frustrated",
@@ -24,16 +26,13 @@ if __name__ == "__main__":
     cleaned_texts = [cleaner.clean(text) for text in feedbacks]
     clusters = clusterer.cluster(cleaned_texts)
 
-    print("\nPM-GPT Prioritized Features:\n")
+    scored_features = []
 
-    for cluster_id, items in clusters.items():
+    for items in clusters.values():
         problem = problem_mapper.map_problem(items)
         features = feature_generator.generate_features(problem)
 
-        print(f"Problem: {problem}")
-
         for feature in features:
-            # Dummy PM metrics (later can be data-driven)
             metrics = {
                 "reach": 1000,
                 "impact": 3,
@@ -42,6 +41,16 @@ if __name__ == "__main__":
             }
 
             score = rice_scorer.score(feature, metrics)
-            print(f" - {feature} | RICE Score: {score}")
+            scored_features.append({
+                "feature": feature,
+                "score": score
+            })
 
+    roadmap = roadmap_generator.generate(scored_features)
+
+    print("\n📅 PM-GPT Product Roadmap\n")
+    for phase, features in roadmap.items():
+        print(f"{phase}:")
+        for feature in features:
+            print(f"  - {feature}")
         print()
