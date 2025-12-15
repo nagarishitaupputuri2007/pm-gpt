@@ -1,26 +1,22 @@
+# product/framework_selector.py
+
 class FrameworkSelector:
     """
-    Automatically selects a PM prioritization framework
-    based on decision context.
+    Selects the most appropriate prioritization framework
+    based on the given problem context.
     """
 
-    def select(self, context: dict) -> str:
-        goal = context.get("goal")
-        time_pressure = context.get("time_pressure")
-        delivery_commitment = context.get("delivery_commitment")
-        focus = context.get("focus")
+    def select(self, problem: str) -> str:
+        problem = problem.lower()
 
-        # Fast decisions
-        if time_pressure == "high":
-            return "ICE"
-
-        # Delivery planning
-        if delivery_commitment:
-            return "MoSCoW"
-
-        # Customer satisfaction analysis
-        if focus == "satisfaction":
+        if "user" in problem or "experience" in problem:
             return "Kano"
 
-        # Default
+        if "quick" in problem or "fast" in problem:
+            return "ICE"
+
+        if "stakeholder" in problem or "requirement" in problem:
+            return "MoSCoW"
+
+        # Default framework
         return "RICE"

@@ -1,72 +1,112 @@
+# product/prioritization_strategy.py
+
 from abc import ABC, abstractmethod
 
 
 class PrioritizationStrategy(ABC):
+    """
+    Abstract base class for all prioritization strategies.
+    """
+
     @abstractmethod
-    def prioritize(self, features):
+    def prioritize(self, features: list[str]):
         pass
 
 
-# ---------- RICE ----------
+# --------------------------------------------------
+# RICE STRATEGY
+# --------------------------------------------------
 class RICEStrategy(PrioritizationStrategy):
-    def prioritize(self, features):
-        return sorted(features, key=lambda x: x["score"], reverse=True)
+    """
+    RICE = Reach × Impact × Confidence ÷ Effort
+    (Simulated values for now)
+    """
+
+    def prioritize(self, features: list[str]):
+        prioritized = []
+
+        for feature in features:
+            score = {
+                "feature": feature,
+                "RICE_score": 80  # placeholder score
+            }
+            prioritized.append(score)
+
+        return prioritized
 
 
-# ---------- ICE ----------
+# --------------------------------------------------
+# ICE STRATEGY
+# --------------------------------------------------
 class ICEStrategy(PrioritizationStrategy):
-    def prioritize(self, features):
-        return sorted(features, key=lambda x: x["score"], reverse=True)
+    """
+    ICE = Impact × Confidence × Ease
+    """
+
+    def prioritize(self, features: list[str]):
+        prioritized = []
+
+        for feature in features:
+            score = {
+                "feature": feature,
+                "ICE_score": 70  # placeholder score
+            }
+            prioritized.append(score)
+
+        return prioritized
 
 
-# ---------- MoSCoW ----------
+# --------------------------------------------------
+# MOSCOW STRATEGY
+# --------------------------------------------------
 class MoSCoWStrategy(PrioritizationStrategy):
-    def prioritize(self, features):
-        buckets = {
-            "Must Have": [],
-            "Should Have": [],
-            "Could Have": [],
-            "Won't Have": []
-        }
+    """
+    MoSCoW = Must / Should / Could / Won't
+    """
 
-        for f in features:
-            score = f["score"]
-            name = f["feature"]
+    def prioritize(self, features: list[str]):
+        prioritized = []
 
-            if score >= 7:
-                buckets["Must Have"].append(name)
-            elif score >= 5:
-                buckets["Should Have"].append(name)
-            elif score >= 3:
-                buckets["Could Have"].append(name)
+        for i, feature in enumerate(features):
+            if i == 0:
+                bucket = "Must Have"
+            elif i == 1:
+                bucket = "Should Have"
+            elif i == 2:
+                bucket = "Could Have"
             else:
-                buckets["Won't Have"].append(name)
+                bucket = "Won't Have"
 
-        return buckets
+            prioritized.append({
+                "feature": feature,
+                "priority": bucket
+            })
+
+        return prioritized
 
 
-# ---------- KANO ----------
+# --------------------------------------------------
+# KANO STRATEGY
+# --------------------------------------------------
 class KanoStrategy(PrioritizationStrategy):
     """
-    Categorizes features based on Kano Model.
+    Kano = Basic / Performance / Delighter
     """
 
-    def prioritize(self, features):
-        kano = {
-            "Must-Be Features": [],
-            "Performance Features": [],
-            "Delighter Features": []
-        }
+    def prioritize(self, features: list[str]):
+        prioritized = []
 
-        for f in features:
-            score = f["score"]
-            name = f["feature"]
-
-            if score >= 7:
-                kano["Must-Be Features"].append(name)
-            elif score >= 4:
-                kano["Performance Features"].append(name)
+        for i, feature in enumerate(features):
+            if i == 0:
+                category = "Basic Expectation"
+            elif i == 1:
+                category = "Performance Feature"
             else:
-                kano["Delighter Features"].append(name)
+                category = "Delighter"
 
-        return kano
+            prioritized.append({
+                "feature": feature,
+                "kano_category": category
+            })
+
+        return prioritized

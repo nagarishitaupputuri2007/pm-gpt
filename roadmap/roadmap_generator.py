@@ -1,35 +1,40 @@
+# roadmap/roadmap_generator.py
+
 class RoadmapGenerator:
     """
-    Generates a product roadmap based on prioritized features.
+    Generates a product roadmap from prioritized features
+    (framework-agnostic).
     """
 
-    def generate(self, scored_features: list[dict]) -> dict:
+    def generate(self, prioritized_features: list[dict]) -> dict:
         """
         Generate a simple time-based roadmap.
 
         Args:
-            scored_features (list[dict]): Features with RICE scores
+            prioritized_features (list[dict]): Output from any strategy
 
         Returns:
             dict: Roadmap grouped by timeline
         """
+
         roadmap = {
             "Now (0–1 month)": [],
             "Next (1–3 months)": [],
             "Later (3–6 months)": []
         }
 
-        # Sort features by RICE score (descending)
-        sorted_features = sorted(
-            scored_features, key=lambda x: x["score"], reverse=True
-        )
+        if not prioritized_features:
+            return roadmap
 
-        for idx, feature in enumerate(sorted_features):
+        # We ONLY care about order, not score
+        features = [item["feature"] for item in prioritized_features]
+
+        for idx, feature in enumerate(features):
             if idx < 2:
-                roadmap["Now (0–1 month)"].append(feature["feature"])
+                roadmap["Now (0–1 month)"].append(feature)
             elif idx < 4:
-                roadmap["Next (1–3 months)"].append(feature["feature"])
+                roadmap["Next (1–3 months)"].append(feature)
             else:
-                roadmap["Later (3–6 months)"].append(feature["feature"])
+                roadmap["Later (3–6 months)"].append(feature)
 
         return roadmap

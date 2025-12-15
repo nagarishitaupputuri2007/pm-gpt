@@ -14,3 +14,5 @@ test_*.py
 
 # OS files
 .DS_Store
+
+exports/

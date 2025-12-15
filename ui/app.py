@@ -1,135 +1,127 @@
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
+# ui/app.py
 import streamlit as st
 
-from nlp.text_cleaner import TextCleaner
-from nlp.sentiment import SentimentAnalyzer
-from nlp.clustering import ProblemClusterer
 from product.problem_mapper import ProblemMapper
 from product.feature_generator import FeatureGenerator
-from product.strategy_resolver import StrategyResolver
 from product.framework_selector import FrameworkSelector
 from product.framework_explainer import FrameworkExplainer
+from product.framework_comparison import FrameworkComparison
+from product.strategy_resolver import StrategyResolver
+
 from roadmap.roadmap_generator import RoadmapGenerator
+from roadmap.roadmap_exporter import RoadmapExporter
 
-
-# ---------- UI CONFIG ----------
-st.set_page_config(page_title="PM-GPT", layout="wide")
-st.title("🧠 PM-GPT")
-st.caption("AI Co-Pilot for Product Managers")
-
-st.markdown("""
-PM-GPT supports **human-in-the-loop decision making**:
-- Auto mode → PM-GPT chooses the framework
-- Manual mode → PM selects the framework
-""")
-
-st.divider()
-
-# ---------- INIT ----------
-cleaner = TextCleaner()
-sentiment = SentimentAnalyzer()
-clusterer = ProblemClusterer(num_clusters=2)
-mapper = ProblemMapper()
-generator = FeatureGenerator()
-resolver = StrategyResolver()
-selector = FrameworkSelector()
-explainer = FrameworkExplainer()
-roadmap_generator = RoadmapGenerator()
-
-# ---------- MODE SELECTION ----------
-st.header("🧠 Decision Mode")
-mode = st.radio(
-    "Choose decision mode",
-    ["Auto (PM-GPT decides)", "Manual (You decide)"]
+# --------------------------------------------------
+# Page config
+# --------------------------------------------------
+st.set_page_config(
+    page_title="PM-GPT | Product Copilot",
+    layout="wide"
 )
 
-# ---------- FRAMEWORK SELECTION ----------
-if mode == "Manual (You decide)":
-    framework = st.selectbox(
-        "Select framework",
+st.title("🚀 PM-GPT – Product Management Copilot")
+st.caption("AI-assisted product thinking: problems → features → strategy → roadmap")
+
+# --------------------------------------------------
+# Sidebar controls
+# --------------------------------------------------
+st.sidebar.header("⚙️ Controls")
+
+decision_mode = st.sidebar.radio(
+    "Decision Mode",
+    ["Auto (PM-GPT decides)", "Manual (I choose framework)"]
+)
+
+manual_framework = None
+if decision_mode == "Manual (I choose framework)":
+    manual_framework = st.sidebar.selectbox(
+        "Choose Framework",
         ["RICE", "ICE", "MoSCoW", "Kano"]
     )
-else:
-    context = {
-        "goal": "roadmap_planning",
-        "time_pressure": "low",
-        "delivery_commitment": False,
-        "focus": "value"
-    }
-    framework = selector.select(context)
 
-strategy = resolver.resolve(framework)
-explanation = explainer.explain(framework, {})
-
-st.info(f"🧠 Framework in use: **{framework}**\n\n{explanation}")
-
-st.divider()
-
-# ---------- INPUT ----------
-feedback = st.text_area(
-    "Enter user feedback (one per line)",
-    height=200,
-    placeholder="Payment failed again\nSearch results are inaccurate"
+user_problem = st.sidebar.text_area(
+    "Describe the product problem",
+    placeholder="Example: Users drop off during onboarding because it is too long..."
 )
 
-if st.button("🚀 Generate PM Insights"):
-    if not feedback.strip():
-        st.warning("Please enter feedback")
-        st.stop()
+run_clicked = st.sidebar.button("Run PM-GPT")
 
-    feedbacks = feedback.split("\n")
-    cleaned = [cleaner.clean(f) for f in feedbacks if cleaner.clean(f)]
+# --------------------------------------------------
+# INIT SESSION STATE
+# --------------------------------------------------
+for key in [
+    "problem_summary",
+    "features",
+    "framework",
+    "scored_features",
+    "roadmap"
+]:
+    if key not in st.session_state:
+        st.session_state[key] = None
 
-    clusters = clusterer.cluster(cleaned)
+# --------------------------------------------------
+# RUN MAIN PIPELINE (ONLY ON RUN CLICK)
+# --------------------------------------------------
+if run_clicked and user_problem.strip():
 
-    st.header("🔍 Product Problems")
-    scored_features = []
+    # 1. Problem Mapping
+    st.subheader("1️⃣ Problem Mapping")
+    mapper = ProblemMapper()
+    problem_summary = mapper.map_problem([user_problem])
+    st.session_state.problem_summary = problem_summary
+    st.write(problem_summary)
 
-    for items in clusters.values():
-        problem = mapper.map_problem(items)
-        st.subheader(problem)
+    # 2. Feature Generation
+    st.subheader("2️⃣ Feature Generation")
+    generator = FeatureGenerator()
+    features = generator.generate(problem_summary)
+    st.session_state.features = features
+    st.write(features)
 
-        for i in items:
-            s = sentiment.analyze(i)
-            st.write(f"- {i} _(urgency: {s['compound']})_")
-
-        features = generator.generate_features(problem)
-
-        for feature in features:
-            metrics = {
-                "reach": 1000,
-                "impact": 3,
-                "confidence": 0.8,
-                "effort": 2
-            }
-
-            score = (
-                metrics["reach"]
-                * metrics["impact"]
-                * metrics["confidence"]
-            ) / metrics["effort"]
-
-            scored_features.append({
-                "feature": feature,
-                "score": score
-            })
-
-    st.divider()
-    st.header("📊 Prioritization Output")
-
-    result = strategy.prioritize(scored_features)
-
-    if framework in ["MoSCoW", "Kano"]:
-        for bucket, items in result.items():
-            st.subheader(bucket)
-            for f in items:
-                st.write("-", f)
+    # 3. Framework Selection
+    st.subheader("3️⃣ Framework Selection")
+    if decision_mode.startswith("Auto"):
+        selector = FrameworkSelector()
+        framework = selector.select(problem_summary)
     else:
-        roadmap = roadmap_generator.generate(result)
-        for phase, items in roadmap.items():
-            st.subheader(phase)
-            for f in items:
-                st.write("-", f)
+        framework = manual_framework
+
+    st.session_state.framework = framework
+    st.success(f"Selected Framework: **{framework}**")
+
+    # 4. Framework Explanation
+    st.subheader("4️⃣ Framework Explanation")
+    explainer = FrameworkExplainer()
+    explanation = explainer.explain(framework, {})
+    st.info(explanation)
+
+    # 5. Framework Comparison
+    st.subheader("5️⃣ Framework Comparison")
+    comparison = FrameworkComparison()
+    st.table(comparison.compare())
+
+    # 6. Strategy Resolution
+    st.subheader("6️⃣ Strategy Resolution")
+    resolver = StrategyResolver()
+    scored_features = resolver.resolve(framework, features)
+    st.session_state.scored_features = scored_features
+    st.json(scored_features)
+
+    # 7. Roadmap Generation
+    st.subheader("7️⃣ Roadmap Generation")
+    roadmap_gen = RoadmapGenerator()
+    roadmap = roadmap_gen.generate(scored_features)
+    st.session_state.roadmap = roadmap
+    st.json(roadmap)
+
+# --------------------------------------------------
+# EXPORT SECTION (ALWAYS VISIBLE IF ROADMAP EXISTS)
+# --------------------------------------------------
+if st.session_state.roadmap:
+    st.subheader("8️⃣ Export Roadmap")
+    exporter = RoadmapExporter()
+
+    if st.button("📄 Export Roadmap"):
+        path = exporter.export(st.session_state.roadmap)
+        st.success("Roadmap exported successfully!")
+        st.code(path)
