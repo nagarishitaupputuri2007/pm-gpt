@@ -10,6 +10,8 @@ from nlp.clustering import ProblemClusterer
 from product.problem_mapper import ProblemMapper
 from product.feature_generator import FeatureGenerator
 from product.strategy_resolver import StrategyResolver
+from product.framework_selector import FrameworkSelector
+from product.framework_explainer import FrameworkExplainer
 from roadmap.roadmap_generator import RoadmapGenerator
 
 
@@ -19,8 +21,9 @@ st.title("🧠 PM-GPT")
 st.caption("AI Co-Pilot for Product Managers")
 
 st.markdown("""
-PM-GPT analyzes feedback and applies **Product Management frameworks**
-to help you make better decisions.
+PM-GPT supports **human-in-the-loop decision making**:
+- Auto mode → PM-GPT chooses the framework
+- Manual mode → PM selects the framework
 """)
 
 st.divider()
@@ -32,16 +35,36 @@ clusterer = ProblemClusterer(num_clusters=2)
 mapper = ProblemMapper()
 generator = FeatureGenerator()
 resolver = StrategyResolver()
+selector = FrameworkSelector()
+explainer = FrameworkExplainer()
 roadmap_generator = RoadmapGenerator()
 
-# ---------- FRAMEWORK ----------
-st.header("⚙️ Prioritization Framework")
-framework = st.selectbox(
-    "Select framework",
-    ["RICE", "ICE", "MoSCoW", "Kano"]
+# ---------- MODE SELECTION ----------
+st.header("🧠 Decision Mode")
+mode = st.radio(
+    "Choose decision mode",
+    ["Auto (PM-GPT decides)", "Manual (You decide)"]
 )
 
+# ---------- FRAMEWORK SELECTION ----------
+if mode == "Manual (You decide)":
+    framework = st.selectbox(
+        "Select framework",
+        ["RICE", "ICE", "MoSCoW", "Kano"]
+    )
+else:
+    context = {
+        "goal": "roadmap_planning",
+        "time_pressure": "low",
+        "delivery_commitment": False,
+        "focus": "value"
+    }
+    framework = selector.select(context)
+
 strategy = resolver.resolve(framework)
+explanation = explainer.explain(framework, {})
+
+st.info(f"🧠 Framework in use: **{framework}**\n\n{explanation}")
 
 st.divider()
 
@@ -99,7 +122,6 @@ if st.button("🚀 Generate PM Insights"):
 
     result = strategy.prioritize(scored_features)
 
-    # ---------- OUTPUT ----------
     if framework in ["MoSCoW", "Kano"]:
         for bucket, items in result.items():
             st.subheader(bucket)
