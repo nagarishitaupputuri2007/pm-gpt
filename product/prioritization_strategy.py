@@ -33,3 +33,19 @@ class RICEStrategy(PrioritizationStrategy):
             effort = 1
 
         return (reach * impact * confidence) / effort
+
+
+class ICEStrategy(PrioritizationStrategy):
+    """
+    ICE = Impact × Confidence × Ease
+    """
+
+    def name(self) -> str:
+        return "ICE"
+
+    def score(self, feature: str, metrics: dict) -> float:
+        impact = metrics.get("impact", 0)
+        confidence = metrics.get("confidence", 0)
+        ease = metrics.get("ease", 0)
+
+        return impact * confidence * ease
