@@ -7,16 +7,6 @@ class RoadmapGenerator:
     """
 
     def generate(self, prioritized_features: list[dict]) -> dict:
-        """
-        Generate a simple time-based roadmap.
-
-        Args:
-            prioritized_features (list[dict]): Output from any strategy
-
-        Returns:
-            dict: Roadmap grouped by timeline
-        """
-
         roadmap = {
             "Now (0–1 month)": [],
             "Next (1–3 months)": [],
@@ -26,7 +16,7 @@ class RoadmapGenerator:
         if not prioritized_features:
             return roadmap
 
-        # We ONLY care about order, not score
+        # Order already represents priority
         features = [item["feature"] for item in prioritized_features]
 
         for idx, feature in enumerate(features):
