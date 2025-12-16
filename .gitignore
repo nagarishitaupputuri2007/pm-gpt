@@ -16,3 +16,4 @@ test_*.py
 .DS_Store
 
 exports/
+exports/*.json
