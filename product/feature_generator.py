@@ -1,55 +1,42 @@
 # product/feature_generator.py
+from typing import List
 
 class FeatureGenerator:
     """
-    Generates feature ideas from a product problem statement.
+    Simple feature generator that converts a brief problem description
+    into a short list of candidate features (deterministic heuristics).
+    This is intentionally simple & explainable for the assignment.
     """
 
-    def generate(self, problem_statement: str) -> list[str]:
-        """
-        Generate a list of feature ideas based on the problem.
+    def __init__(self):
+        # You can expand these mapping rules later
+        self.keywords_map = {
+            "onboard": ["Simplify onboarding flow", "Shorten signup steps", "Provide onboarding tips"],
+            "payment": ["Improve payment reliability", "Retry payments automatically", "Improve checkout UX"],
+            "search": ["Improve search relevance", "Add search filters", "Surface popular queries"],
+            "performance": ["Optimize app performance", "Reduce app startup time", "Improve memory usage"],
+            "crash": ["Fix checkout crash", "Add crash reporting", "Improve error handling"]
+        }
 
-        Args:
-            problem_statement (str): Human-readable product problem
-
-        Returns:
-            list[str]: Feature ideas
-        """
-
-        if not problem_statement:
-            return []
-
-        # Simple rule-based generation (stable & predictable)
+    def generate(self, problem_summary: str) -> List[str]:
+        summary = problem_summary.lower()
         features = []
 
-        problem_lower = problem_statement.lower()
+        # Match known keywords first
+        for k, suggestions in self.keywords_map.items():
+            if k in summary:
+                for s in suggestions:
+                    if s not in features:
+                        features.append(s)
 
-        if "onboarding" in problem_lower:
-            features.extend([
-                "Simplify onboarding flow",
-                "Add progress indicators to onboarding",
-                "Provide contextual tooltips during onboarding"
-            ])
-
-        if "payment" in problem_lower or "checkout" in problem_lower:
-            features.extend([
-                "Improve payment retry mechanism",
-                "Add clearer payment error messages",
-                "Optimize checkout performance"
-            ])
-
-        if "search" in problem_lower:
-            features.extend([
-                "Improve search relevance ranking",
-                "Add search filters",
-                "Enable typo-tolerant search"
-            ])
-
+        # If nothing matched, fallback to generic suggestions
         if not features:
-            features.extend([
-                "Improve in-app guidance",
-                "Enhance overall app performance",
-                "Add user feedback collection"
-            ])
+            features = [
+                "Investigate root causes",
+                "Improve user messaging and error handling",
+                "Collect contextual user feedback",
+                "Add telemetry to measure the issue"
+            ]
 
-        return features
+        # Limit to top 6 suggestions (keeps UI tidy)
+        return features[:6]
