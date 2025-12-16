@@ -11,7 +11,7 @@ from roadmap.roadmap_generator import RoadmapGenerator
 from roadmap.roadmap_exporter import RoadmapExporter
 
 # --------------------------------------------------
-# Page Config
+# PAGE CONFIG
 # --------------------------------------------------
 st.set_page_config(
     page_title="PM-GPT | Product Copilot",
@@ -19,19 +19,17 @@ st.set_page_config(
 )
 
 # --------------------------------------------------
-# HERO SECTION
+# HERO
 # --------------------------------------------------
 st.markdown("""
-# 🚀 PM-GPT
-### AI Copilot for Structured Product Decision-Making
-
-Turn **unclear product problems** into  
-**prioritized features, strategic clarity, and actionable roadmaps**.
+# 🚀 PM-GPT – Product Management Copilot  
+**AI-assisted product thinking:**  
+Problems → Features → Strategy → Roadmap
 """)
 st.divider()
 
 # --------------------------------------------------
-# SIDEBAR CONTROLS (ONLY CONTROLS)
+# SIDEBAR CONTROLS
 # --------------------------------------------------
 st.sidebar.header("⚙️ Configuration")
 
@@ -50,7 +48,7 @@ if decision_mode.startswith("Manual"):
 run_clicked = st.sidebar.button("🚀 Run PM-GPT")
 
 # --------------------------------------------------
-# MAIN INPUT
+# INPUT
 # --------------------------------------------------
 st.markdown("## 🧠 Describe the Product Problem")
 user_problem = st.text_area(
@@ -59,129 +57,155 @@ user_problem = st.text_area(
 )
 
 # --------------------------------------------------
-# INIT SESSION STATE
+# SESSION STATE INIT
 # --------------------------------------------------
 for key in [
     "problem_summary",
     "features",
     "framework",
+    "explanation",
     "scored_features",
-    "roadmap",
-    "explanation"
+    "roadmap"
 ]:
     if key not in st.session_state:
         st.session_state[key] = None
 
 # --------------------------------------------------
-# RUN PIPELINE
+# PIPELINE
 # --------------------------------------------------
 if run_clicked and user_problem.strip():
 
-    # 1. Problem Mapping
+    # 1️⃣ Problem Mapping
     mapper = ProblemMapper()
     st.session_state.problem_summary = mapper.map_problem([user_problem])
 
-    # 2. Feature Generation
+    # 2️⃣ Feature Generation
     generator = FeatureGenerator()
-    st.session_state.features = generator.generate(st.session_state.problem_summary)
+    st.session_state.features = generator.generate(
+        st.session_state.problem_summary
+    )
 
-    # 3. Framework Selection
+    # 3️⃣ Framework Selection
     if decision_mode.startswith("Auto"):
         selector = FrameworkSelector()
-        st.session_state.framework = selector.select(st.session_state.problem_summary)
+        st.session_state.framework = selector.select(
+            st.session_state.problem_summary
+        )
     else:
         st.session_state.framework = manual_framework
 
-    # 4. Framework Explanation
+    # 4️⃣ Framework Explanation
     explainer = FrameworkExplainer()
     st.session_state.explanation = explainer.explain(
         st.session_state.framework, {}
     )
 
-    # 5. Strategy Resolution
+    # 5️⃣ Strategy Resolution (returns scored features)
     resolver = StrategyResolver()
     st.session_state.scored_features = resolver.resolve(
         st.session_state.framework,
         st.session_state.features
     )
 
-    # 6. Roadmap Generation
+    # 6️⃣ Roadmap Generation
     roadmap_gen = RoadmapGenerator()
     st.session_state.roadmap = roadmap_gen.generate(
         st.session_state.scored_features
     )
 
 # --------------------------------------------------
-# RESULTS SECTION
+# RESULTS
 # --------------------------------------------------
 if st.session_state.roadmap:
 
     tabs = st.tabs([
         "🧩 Problem Insight",
         "🛠 Features",
-        "📐 Framework Decision",
+        "📐 Framework",
         "📊 Prioritization",
         "🗺 Roadmap"
     ])
 
+    # -----------------------------
     with tabs[0]:
         st.subheader("Problem Summary")
         st.write(st.session_state.problem_summary)
 
+    # -----------------------------
     with tabs[1]:
         st.subheader("Generated Feature Ideas")
-        for feature in st.session_state.features:
-            st.markdown(f"- {feature}")
+        for f in st.session_state.features:
+            st.markdown(f"- {f}")
 
+    # -----------------------------
     with tabs[2]:
         st.success(f"Selected Framework: **{st.session_state.framework}**")
 
-        with st.expander("📘 Why this framework was chosen"):
+        with st.expander("📘 Why this framework?"):
             st.info(st.session_state.explanation)
 
-        with st.expander("⚖️ Framework comparison"):
+        with st.expander("⚖️ Framework Comparison"):
             comparison = FrameworkComparison()
             st.table(comparison.compare())
 
+    # -----------------------------
     with tabs[3]:
-        st.subheader("Feature Prioritization")
+        st.subheader("Prioritized Features")
         st.dataframe(
             st.session_state.scored_features,
             use_container_width=True
         )
 
+    # -----------------------------
     with tabs[4]:
         st.subheader("Product Roadmap")
         for phase, items in st.session_state.roadmap.items():
             st.markdown(f"### {phase}")
-            for item in items:
-                st.markdown(f"- {item}")
+            for i in items:
+                st.markdown(f"- {i}")
 
     # --------------------------------------------------
-    # PM DECISION SUMMARY (THE WOW)
+    # PM DECISION SUMMARY
     # --------------------------------------------------
     st.divider()
     st.markdown("## ✅ PM Decision Summary")
 
-    st.success(
-        f"""
+    st.success(f"""
 **Framework Used:** {st.session_state.framework}
 
 **Rationale:**  
-The selected framework aligns with the problem context and helps maximize impact while balancing effort and feasibility.
+The selected framework aligns with the problem context and balances impact with execution feasibility.
 
 **Outcome:**  
-A focused roadmap prioritizing the highest-value features first, enabling faster validation and reduced execution risk.
-"""
-    )
+A focused roadmap prioritizing the highest-value features first.
+""")
 
     # --------------------------------------------------
-    # EXPORT
+    # EXPORT – FULL ANALYSIS PDF
     # --------------------------------------------------
-    st.markdown("## 📤 Export")
+    st.divider()
+    st.markdown("## 📤 Export Full Analysis")
+
     exporter = RoadmapExporter()
 
-    if st.button("📄 Export Roadmap"):
-        path = exporter.export(st.session_state.roadmap)
-        st.success("Roadmap exported successfully!")
-        st.code(path)
+    analysis_data = {
+        "problem": st.session_state.problem_summary,
+        "features": st.session_state.features,
+        "framework": st.session_state.framework,
+        "explanation": st.session_state.explanation,
+        "prioritization": st.session_state.scored_features,
+        "roadmap": st.session_state.roadmap
+    }
+
+    if st.button("📄 Generate Full Analysis PDF"):
+        pdf_path = exporter.export_full_analysis(analysis_data)
+
+        with open(pdf_path, "rb") as f:
+            st.download_button(
+                "⬇️ Download PDF",
+                data=f,
+                file_name=pdf_path.split("/")[-1],
+                mime="application/pdf"
+            )
+
+        st.success("Full analysis PDF generated successfully!")
