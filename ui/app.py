@@ -11,6 +11,7 @@ from product.decision_narrator import DecisionNarrator
 from roadmap.roadmap_generator import RoadmapGenerator
 from roadmap.roadmap_exporter import RoadmapExporter
 
+
 # --------------------------------------------------
 # PAGE CONFIG
 # --------------------------------------------------
@@ -23,13 +24,14 @@ st.set_page_config(
 # HERO SECTION
 # --------------------------------------------------
 st.markdown("""
-# 🚀 PM-GPT
+# 🚀 PM-GPT  
 ### AI Copilot for Structured Product Decision-Making
 
 Turn **unclear product problems** into  
-**prioritized features, strategic clarity, and actionable roadmaps**.
+**prioritized features → strategic clarity → actionable roadmaps**
 """)
 st.divider()
+
 
 # --------------------------------------------------
 # SIDEBAR CONTROLS
@@ -50,15 +52,22 @@ if decision_mode.startswith("Manual"):
 
 run_clicked = st.sidebar.button("🚀 Run PM-GPT")
 
+
 # --------------------------------------------------
 # MAIN INPUT
 # --------------------------------------------------
 st.markdown("## 🧠 Describe the Product Problem")
+
 user_problem = st.text_area(
-    "Product Problem",
-    placeholder="Example: Users abandon onboarding due to too many steps and unclear value early on...",
-    label_visibility="collapsed"
+    label="Product problem",
+    label_visibility="collapsed",
+    placeholder=(
+        "Example:\n"
+        "Users abandon onboarding due to too many steps, unclear value communication, "
+        "and lack of early progress feedback."
+    )
 )
+
 
 # --------------------------------------------------
 # SESSION STATE INIT
@@ -73,6 +82,7 @@ for key in [
 ]:
     if key not in st.session_state:
         st.session_state[key] = None
+
 
 # --------------------------------------------------
 # RUN PIPELINE
@@ -117,15 +127,19 @@ if run_clicked and user_problem.strip():
         st.session_state.scored_features
     )
 
+
 # --------------------------------------------------
 # RESULTS SECTION
 # --------------------------------------------------
 if st.session_state.roadmap:
 
+    st.divider()
+    st.markdown("## 📊 PM-GPT Insights")
+
     tabs = st.tabs([
         "🧩 Problem Insight",
-        "🛠 Features",
-        "📐 Framework",
+        "🛠 Feature Ideas",
+        "📐 Framework Decision",
         "📊 Prioritization",
         "🗺 Roadmap"
     ])
@@ -133,7 +147,7 @@ if st.session_state.roadmap:
     # -----------------------------
     with tabs[0]:
         st.subheader("Problem Summary")
-        st.write(st.session_state.problem_summary)
+        st.info(st.session_state.problem_summary)
 
     # -----------------------------
     with tabs[1]:
@@ -143,12 +157,13 @@ if st.session_state.roadmap:
 
     # -----------------------------
     with tabs[2]:
+        st.subheader("Framework Decision")
         st.success(f"Selected Framework: **{st.session_state.framework}**")
 
         with st.expander("📘 Why this framework?"):
-            st.info(st.session_state.explanation)
+            st.write(st.session_state.explanation)
 
-        with st.expander("⚖️ Framework Comparison"):
+        with st.expander("⚖️ Framework comparison"):
             comparison = FrameworkComparison()
             st.table(comparison.compare())
 
@@ -162,14 +177,19 @@ if st.session_state.roadmap:
 
     # -----------------------------
     with tabs[4]:
-        st.subheader("Product Roadmap")
+        st.subheader("Product Roadmap (6 Months)")
+
         for phase, items in st.session_state.roadmap.items():
             st.markdown(f"### {phase}")
-            for item in items:
-                st.markdown(f"- {item}")
+            if items:
+                for item in items:
+                    st.markdown(f"- {item}")
+            else:
+                st.caption("No items planned for this phase yet.")
+
 
     # --------------------------------------------------
-    # PM REASONING (PHASE 2.1)
+    # PHASE 2.1 — PM REASONING
     # --------------------------------------------------
     st.divider()
     st.markdown("## 🧠 PM Reasoning")
@@ -195,8 +215,9 @@ if st.session_state.roadmap:
         narrator.explain_roadmap()
     )
 
+
     # --------------------------------------------------
-    # EXPORT FULL ANALYSIS PDF
+    # EXPORT — FULL ANALYSIS PDF
     # --------------------------------------------------
     st.divider()
     st.markdown("## 📤 Export Full Analysis")
@@ -217,13 +238,14 @@ if st.session_state.roadmap:
 
         with open(pdf_path, "rb") as f:
             st.download_button(
-                label="⬇️ Download PDF",
+                label="⬇️ Download Full Analysis PDF",
                 data=f,
                 file_name=pdf_path.split("/")[-1],
                 mime="application/pdf"
             )
 
-        st.success("Full analysis PDF generated successfully!")
+        st.success("Full PM analysis PDF generated successfully.")
+
 
 # --------------------------------------------------
 # EMPTY STATE
