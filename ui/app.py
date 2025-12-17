@@ -6,6 +6,7 @@ from product.framework_selector import FrameworkSelector
 from product.framework_explainer import FrameworkExplainer
 from product.framework_comparison import FrameworkComparison
 from product.strategy_resolver import StrategyResolver
+from product.decision_narrator import DecisionNarrator
 
 from roadmap.roadmap_generator import RoadmapGenerator
 from roadmap.roadmap_exporter import RoadmapExporter
@@ -19,12 +20,14 @@ st.set_page_config(
 )
 
 # --------------------------------------------------
-# HERO
+# HERO SECTION
 # --------------------------------------------------
 st.markdown("""
-# 🚀 PM-GPT – Product Management Copilot  
-**AI-assisted product thinking:**  
-Problems → Features → Strategy → Roadmap
+# 🚀 PM-GPT
+### AI Copilot for Structured Product Decision-Making
+
+Turn **unclear product problems** into  
+**prioritized features, strategic clarity, and actionable roadmaps**.
 """)
 st.divider()
 
@@ -48,12 +51,13 @@ if decision_mode.startswith("Manual"):
 run_clicked = st.sidebar.button("🚀 Run PM-GPT")
 
 # --------------------------------------------------
-# INPUT
+# MAIN INPUT
 # --------------------------------------------------
 st.markdown("## 🧠 Describe the Product Problem")
 user_problem = st.text_area(
-    "",
-    placeholder="Example: Users abandon onboarding due to too many steps and unclear value early on..."
+    "Product Problem",
+    placeholder="Example: Users abandon onboarding due to too many steps and unclear value early on...",
+    label_visibility="collapsed"
 )
 
 # --------------------------------------------------
@@ -71,7 +75,7 @@ for key in [
         st.session_state[key] = None
 
 # --------------------------------------------------
-# PIPELINE
+# RUN PIPELINE
 # --------------------------------------------------
 if run_clicked and user_problem.strip():
 
@@ -100,7 +104,7 @@ if run_clicked and user_problem.strip():
         st.session_state.framework, {}
     )
 
-    # 5️⃣ Strategy Resolution (returns scored features)
+    # 5️⃣ Strategy Resolution
     resolver = StrategyResolver()
     st.session_state.scored_features = resolver.resolve(
         st.session_state.framework,
@@ -114,7 +118,7 @@ if run_clicked and user_problem.strip():
     )
 
 # --------------------------------------------------
-# RESULTS
+# RESULTS SECTION
 # --------------------------------------------------
 if st.session_state.roadmap:
 
@@ -134,8 +138,8 @@ if st.session_state.roadmap:
     # -----------------------------
     with tabs[1]:
         st.subheader("Generated Feature Ideas")
-        for f in st.session_state.features:
-            st.markdown(f"- {f}")
+        for feature in st.session_state.features:
+            st.markdown(f"- {feature}")
 
     # -----------------------------
     with tabs[2]:
@@ -150,10 +154,10 @@ if st.session_state.roadmap:
 
     # -----------------------------
     with tabs[3]:
-        st.subheader("Prioritized Features")
+        st.subheader("Feature Prioritization")
         st.dataframe(
             st.session_state.scored_features,
-            use_container_width=True
+            width="stretch"
         )
 
     # -----------------------------
@@ -161,27 +165,38 @@ if st.session_state.roadmap:
         st.subheader("Product Roadmap")
         for phase, items in st.session_state.roadmap.items():
             st.markdown(f"### {phase}")
-            for i in items:
-                st.markdown(f"- {i}")
+            for item in items:
+                st.markdown(f"- {item}")
 
     # --------------------------------------------------
-    # PM DECISION SUMMARY
+    # PM REASONING (PHASE 2.1)
     # --------------------------------------------------
     st.divider()
-    st.markdown("## ✅ PM Decision Summary")
+    st.markdown("## 🧠 PM Reasoning")
 
-    st.success(f"""
-**Framework Used:** {st.session_state.framework}
+    narrator = DecisionNarrator()
 
-**Rationale:**  
-The selected framework aligns with the problem context and balances impact with execution feasibility.
+    st.markdown("### Framework Rationale")
+    st.info(
+        narrator.explain_framework_choice(
+            st.session_state.framework
+        )
+    )
 
-**Outcome:**  
-A focused roadmap prioritizing the highest-value features first.
-""")
+    st.markdown("### Prioritization Rationale")
+    st.info(
+        narrator.explain_prioritization(
+            st.session_state.scored_features
+        )
+    )
+
+    st.markdown("### Roadmap Rationale")
+    st.info(
+        narrator.explain_roadmap()
+    )
 
     # --------------------------------------------------
-    # EXPORT – FULL ANALYSIS PDF
+    # EXPORT FULL ANALYSIS PDF
     # --------------------------------------------------
     st.divider()
     st.markdown("## 📤 Export Full Analysis")
@@ -202,10 +217,16 @@ A focused roadmap prioritizing the highest-value features first.
 
         with open(pdf_path, "rb") as f:
             st.download_button(
-                "⬇️ Download PDF",
+                label="⬇️ Download PDF",
                 data=f,
                 file_name=pdf_path.split("/")[-1],
                 mime="application/pdf"
             )
 
         st.success("Full analysis PDF generated successfully!")
+
+# --------------------------------------------------
+# EMPTY STATE
+# --------------------------------------------------
+elif run_clicked:
+    st.warning("Please enter a product problem to continue.")
