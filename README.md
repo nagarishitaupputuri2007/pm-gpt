@@ -115,6 +115,6 @@ The goal is to support — not replace — PM judgment.
 
 ## 👤 Author
 
-**Nagarisgita**  
+**Upputuri Naga Rishita**  
 B.Tech Computer Science Engineering  
 Specialization: AI & Future Technology
