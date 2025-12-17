@@ -1,64 +1,120 @@
-
-# PM-GPT  
+# 🚀 PM-GPT  
 ### An AI Co-Pilot for Product Managers
 
-PM-GPT is an AI-assisted decision-support system designed to help Product Managers analyze user feedback, identify key product problems, prioritize features using industry-standard frameworks, and generate data-driven product roadmaps.
+PM-GPT is a **decision-support system for Product Managers** that combines NLP techniques with established Product Management frameworks to help teams move from  
+**raw user feedback → structured decisions → actionable product roadmaps**.
 
-Unlike traditional ML projects that focus on prediction, PM-GPT focuses on **decision-making**, combining NLP techniques with Product Management methodologies.
+Unlike traditional ML projects that focus on prediction accuracy, PM-GPT focuses on  
+**how product decisions are made, explained, and communicated**.
 
 ---
 
-## 🚀 Problem Statement
+## 🚩 Problem Statement
 
-Modern product teams receive large volumes of user feedback in the form of reviews, complaints, and feature requests.  
-Manually analyzing this feedback to identify real product problems and decide what to build next is time-consuming, subjective, and error-prone.
+Modern product teams receive large volumes of unstructured user feedback in the form of reviews, complaints, and feature requests.
 
-There is a lack of tools that bridge:
-- AI-based feedback analysis  
-- Structured product decision-making frameworks  
+Manually analyzing this feedback to identify real product problems and decide what to build next is:
 
-PM-GPT aims to close this gap.
+- Time-consuming  
+- Highly subjective  
+- Difficult to justify to stakeholders  
+
+While AI tools exist for text analysis and PM frameworks exist for prioritization, there are very few systems that **connect both into a single, end-to-end decision workflow**.
+
+PM-GPT is designed to bridge this gap.
 
 ---
 
 ## 🎯 Objectives
 
-- Analyze raw user feedback using NLP
-- Detect recurring product problems
-- Convert problems into actionable feature ideas
-- Prioritize features using the RICE framework
-- Generate a product roadmap to support PM decision-making
+- Analyze raw user feedback using NLP techniques  
+- Identify recurring product problems  
+- Convert problems into actionable feature ideas  
+- Prioritize features using standard PM frameworks (RICE, ICE, Kano, MoSCoW)  
+- Generate a realistic 6-month product roadmap  
+- Export a complete product analysis as a PDF  
 
 ---
 
 ## 🧠 System Overview
 
-User Feedback  
-↓  
-Text Cleaning & NLP Processing  
-↓  
-Problem Detection (Clustering)  
-↓  
-Feature Generation  
-↓  
-Feature Prioritization (RICE)  
-↓  
-Roadmap Generation  
-↓  
-Web Interface (Streamlit)
-
-Each module follows a **single-responsibility design** to ensure clarity, maintainability, and extensibility.
+```
+User Feedback
+   ↓
+Text Cleaning & NLP Processing
+   ↓
+Problem Identification
+   ↓
+Feature Ideation
+   ↓
+Feature Prioritization (RICE)
+   ↓
+Roadmap Generation
+   ↓
+Streamlit Web Interface
+   ↓
+Full Analysis PDF Export
+```
 
 ---
 
 ## 🗂️ Project Structure
 
-```text
+```
 pm-gpt/
-├── data/          # User feedback datasets
-├── nlp/           # NLP processing modules
-├── product/       # Product logic & prioritization
-├── roadmap/       # Roadmap generation logic
-├── ui/            # Streamlit web application
-├── main.py        # System orchestrator
+├── assets/
+│   └── screenshots/
+├── data/
+├── nlp/
+├── product/
+├── roadmap/
+├── ui/
+├── exports/
+├── main.py
+├── requirements.txt
 └── README.md
+```
+
+---
+
+## 🧩 Core Features
+
+### 🔍 Problem Insight
+Converts unstructured feedback into clear, human-readable product problems.
+
+### 🛠 Feature Generation
+Translates identified problems into concrete, actionable feature ideas.
+
+### 📐 Framework-Based Prioritization
+Supports auto and manual framework selection with transparent scoring and explanation.
+
+### 🗺 6-Month Product Roadmap
+Quarter-based roadmap (Q1–Q3) reflecting realistic PM planning.
+
+### 📤 Full Analysis PDF Export
+Generates a complete PM-style document suitable for stakeholders and interviews.
+
+---
+
+## 🧪 Tech Stack
+
+- Python  
+- Streamlit  
+- Pandas  
+- Scikit-learn  
+- ReportLab  
+
+---
+
+## 🧠 Design Philosophy
+
+PM-GPT is intentionally **deterministic and explainable**.
+The goal is to support — not replace — PM judgment.
+
+---
+
+## 👤 Author
+
+**Nagarisgita**  
+B.Tech Computer Science Engineering  
+Specialization: AI & Future Technology
