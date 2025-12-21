@@ -1,3 +1,5 @@
+# ui/app.py
+
 import streamlit as st
 
 from product.problem_mapper import ProblemMapper
@@ -21,20 +23,17 @@ st.set_page_config(
 )
 
 # --------------------------------------------------
-# HERO SECTION
+# HERO
 # --------------------------------------------------
 st.markdown("""
-# 🚀 PM-GPT  
-### AI Copilot for Structured Product Decision-Making
-
-Turn **unclear product problems** into  
-**prioritized features → strategic clarity → actionable roadmaps**
+# 🚀 PM-GPT — Product Management Copilot  
+**AI-assisted product thinking**  
+Problems → Features → Strategy → Roadmap
 """)
 st.divider()
 
-
 # --------------------------------------------------
-# SIDEBAR CONTROLS
+# SIDEBAR
 # --------------------------------------------------
 st.sidebar.header("⚙️ Configuration")
 
@@ -52,25 +51,19 @@ if decision_mode.startswith("Manual"):
 
 run_clicked = st.sidebar.button("🚀 Run PM-GPT")
 
-
 # --------------------------------------------------
-# MAIN INPUT
+# INPUT
 # --------------------------------------------------
 st.markdown("## 🧠 Describe the Product Problem")
 
 user_problem = st.text_area(
-    label="Product problem",
-    label_visibility="collapsed",
-    placeholder=(
-        "Example:\n"
-        "Users abandon onboarding due to too many steps, unclear value communication, "
-        "and lack of early progress feedback."
-    )
+    "Product Problem",
+    placeholder="Example: Users abandon onboarding due to too many steps and unclear value early on...",
+    label_visibility="collapsed"
 )
 
-
 # --------------------------------------------------
-# SESSION STATE INIT
+# SESSION STATE
 # --------------------------------------------------
 for key in [
     "problem_summary",
@@ -83,63 +76,56 @@ for key in [
     if key not in st.session_state:
         st.session_state[key] = None
 
-
 # --------------------------------------------------
-# RUN PIPELINE
+# PIPELINE
 # --------------------------------------------------
 if run_clicked and user_problem.strip():
 
-    # 1️⃣ Problem Mapping
+    # 1️⃣ Problem understanding (PM diagnosis)
     mapper = ProblemMapper()
     st.session_state.problem_summary = mapper.map_problem([user_problem])
 
-    # 2️⃣ Feature Generation
+    # 2️⃣ Feature generation
     generator = FeatureGenerator()
     st.session_state.features = generator.generate(
         st.session_state.problem_summary
     )
 
-    # 3️⃣ Framework Selection
+    # 3️⃣ Framework selection (IMPORTANT FIX: use RAW problem)
     if decision_mode.startswith("Auto"):
         selector = FrameworkSelector()
-        st.session_state.framework = selector.select(
-            st.session_state.problem_summary
-        )
+        st.session_state.framework = selector.select(user_problem)
     else:
         st.session_state.framework = manual_framework
 
-    # 4️⃣ Framework Explanation
+    # 4️⃣ Framework explanation
     explainer = FrameworkExplainer()
     st.session_state.explanation = explainer.explain(
         st.session_state.framework, {}
     )
 
-    # 5️⃣ Strategy Resolution
+    # 5️⃣ Feature prioritization
     resolver = StrategyResolver()
     st.session_state.scored_features = resolver.resolve(
         st.session_state.framework,
         st.session_state.features
     )
 
-    # 6️⃣ Roadmap Generation
+    # 6️⃣ Roadmap generation
     roadmap_gen = RoadmapGenerator()
     st.session_state.roadmap = roadmap_gen.generate(
         st.session_state.scored_features
     )
 
-
 # --------------------------------------------------
-# RESULTS SECTION
+# RESULTS
 # --------------------------------------------------
 if st.session_state.roadmap:
 
-    st.divider()
-    st.markdown("## 📊 PM-GPT Insights")
-
     tabs = st.tabs([
         "🧩 Problem Insight",
-        "🛠 Feature Ideas",
-        "📐 Framework Decision",
+        "🛠 Features",
+        "📐 Framework",
         "📊 Prioritization",
         "🗺 Roadmap"
     ])
@@ -147,7 +133,11 @@ if st.session_state.roadmap:
     # -----------------------------
     with tabs[0]:
         st.subheader("Problem Summary")
-        st.info(st.session_state.problem_summary)
+        st.markdown(f"**{st.session_state.problem_summary}**")
+
+        st.caption(
+            "This summary reflects a structured PM diagnosis based on the product problem described."
+        )
 
     # -----------------------------
     with tabs[1]:
@@ -157,13 +147,13 @@ if st.session_state.roadmap:
 
     # -----------------------------
     with tabs[2]:
-        st.subheader("Framework Decision")
-        st.success(f"Selected Framework: **{st.session_state.framework}**")
+        st.subheader("Selected Framework")
+        st.success(st.session_state.framework)
 
-        with st.expander("📘 Why this framework?"):
-            st.write(st.session_state.explanation)
+        with st.expander("📘 Framework Rationale"):
+            st.info(st.session_state.explanation)
 
-        with st.expander("⚖️ Framework comparison"):
+        with st.expander("⚖️ Framework Comparison"):
             comparison = FrameworkComparison()
             st.table(comparison.compare())
 
@@ -177,50 +167,44 @@ if st.session_state.roadmap:
 
     # -----------------------------
     with tabs[4]:
-        st.subheader("Product Roadmap (6 Months)")
-
+        st.subheader("Product Roadmap")
         for phase, items in st.session_state.roadmap.items():
             st.markdown(f"### {phase}")
-            if items:
-                for item in items:
-                    st.markdown(f"- {item}")
-            else:
-                st.caption("No items planned for this phase yet.")
-
+            for item in items:
+                st.markdown(f"- {item}")
 
     # --------------------------------------------------
-    # PHASE 2.1 — PM REASONING
+    # PM REASONING
     # --------------------------------------------------
     st.divider()
     st.markdown("## 🧠 PM Reasoning")
 
     narrator = DecisionNarrator()
 
-    st.markdown("### Framework Rationale")
+    st.markdown("### 📌 Framework Rationale")
     st.info(
         narrator.explain_framework_choice(
             st.session_state.framework
         )
     )
 
-    st.markdown("### Prioritization Rationale")
+    st.markdown("### 📌 Prioritization Rationale")
     st.info(
         narrator.explain_prioritization(
             st.session_state.scored_features
         )
     )
 
-    st.markdown("### Roadmap Rationale")
+    st.markdown("### 📌 Roadmap Rationale")
     st.info(
         narrator.explain_roadmap()
     )
 
-
     # --------------------------------------------------
-    # EXPORT — FULL ANALYSIS PDF
+    # EXPORT
     # --------------------------------------------------
     st.divider()
-    st.markdown("## 📤 Export Full Analysis")
+    st.markdown("## 📤 Export Full Product Analysis")
 
     exporter = RoadmapExporter()
 
@@ -238,17 +222,13 @@ if st.session_state.roadmap:
 
         with open(pdf_path, "rb") as f:
             st.download_button(
-                label="⬇️ Download Full Analysis PDF",
+                "⬇️ Download PDF",
                 data=f,
                 file_name=pdf_path.split("/")[-1],
                 mime="application/pdf"
             )
 
-        st.success("Full PM analysis PDF generated successfully.")
+        st.success("Full analysis PDF generated successfully!")
 
-
-# --------------------------------------------------
-# EMPTY STATE
-# --------------------------------------------------
 elif run_clicked:
     st.warning("Please enter a product problem to continue.")
