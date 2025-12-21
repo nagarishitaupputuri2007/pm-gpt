@@ -2,64 +2,72 @@
 
 class RoadmapGenerator:
     """
-    Phase 3.3 – Dependency-Aware 6-Month Product Roadmap
+    Generates a 6-month product roadmap from prioritized features.
 
-    Produces a realistic PM-style roadmap:
-    - Q1 (0–3 months): Foundations & risk reduction
-    - Q2 (3–6 months): Growth & leverage
+    Accepts:
+    - List[dict]  → [{"feature": "...", "score": ...}]
+    - List[str]   → ["feature 1", "feature 2"]
+
+    Never assumes pandas. Never crashes.
     """
 
     def generate(self, scored_features):
-        """
-        Expects scored_features as a list of dicts or a DataFrame-like structure
-        with a 'feature' or similar field.
-        """
-
-        # Normalize feature names
+        # --------------------------------------------------
+        # Normalize input to List[str]
+        # --------------------------------------------------
         features = []
-        for item in scored_features:
-            if isinstance(item, dict):
-                features.append(item.get("feature") or item.get("name"))
-            else:
-                features.append(str(item))
 
-        # --- Dependency buckets ---
+        # Case 1: List of dicts (RICE / ICE / Kano / MoSCoW)
+        if isinstance(scored_features, list) and len(scored_features) > 0:
+            first_item = scored_features[0]
+
+            if isinstance(first_item, dict) and "feature" in first_item:
+                features = [item["feature"] for item in scored_features]
+            elif isinstance(first_item, str):
+                features = scored_features
+            else:
+                raise ValueError("Unsupported feature structure in roadmap generator")
+
+        # Empty case
+        elif scored_features == []:
+            features = []
+
+        else:
+            raise ValueError("Unsupported scored_features type passed to RoadmapGenerator")
+
+        # --------------------------------------------------
+        # Roadmap buckets
+        # --------------------------------------------------
         foundations = []
         enablement = []
         expansion = []
 
         for feature in features:
-            f = feature.lower()
+            text = feature.lower()
 
-            # Foundational work (must come first)
-            if any(k in f for k in [
-                "onboarding", "activation", "performance", "reliability",
-                "bug", "stability", "error", "latency"
+            # Q1 — Stabilize & Activate
+            if any(k in text for k in [
+                "onboarding", "activation", "crash", "performance",
+                "startup", "stability", "reliability", "value"
             ]):
                 foundations.append(feature)
 
-            # Enable measurement & learning
-            elif any(k in f for k in [
-                "analytics", "telemetry", "tracking", "feedback",
-                "monitoring", "metrics"
+            # Still Q1 — enable usage
+            elif any(k in text for k in [
+                "guidance", "nudge", "progress", "engagement", "clarify"
             ]):
                 enablement.append(feature)
 
-            # Growth & advanced capabilities
+            # Q2 — Growth & Scale
             else:
                 expansion.append(feature)
 
-        # --- Build 6-month roadmap ---
+        # --------------------------------------------------
+        # Final roadmap (6 months)
+        # --------------------------------------------------
         roadmap = {
-            "Q1 (0–3 months) — Stabilize & Activate": [],
-            "Q2 (3–6 months) — Optimize & Grow": []
+            "Q1 (0–3 months) — Stabilize & Activate": foundations + enablement,
+            "Q2 (3–6 months) — Optimize & Grow": expansion
         }
-
-        # Q1 priorities
-        roadmap["Q1 (0–3 months) — Stabilize & Activate"].extend(foundations)
-        roadmap["Q1 (0–3 months) — Stabilize & Activate"].extend(enablement)
-
-        # Q2 priorities
-        roadmap["Q2 (3–6 months) — Optimize & Grow"].extend(expansion)
 
         return roadmap

@@ -1,5 +1,4 @@
 # ui/app.py
-
 import streamlit as st
 
 from product.problem_mapper import ProblemMapper
@@ -22,15 +21,20 @@ st.set_page_config(
     layout="wide"
 )
 
-# --------------------------------------------------
-# HERO
-# --------------------------------------------------
-st.markdown("""
-# 🚀 PM-GPT — Product Management Copilot  
-**AI-assisted product thinking**  
-Problems → Features → Strategy → Roadmap
-""")
+st.title("🚀 PM-GPT — Product Management Copilot")
+st.caption("Problems → Features → Strategy → Roadmap")
 st.divider()
+
+
+# --------------------------------------------------
+# SESSION STATE
+# --------------------------------------------------
+if "analysis_ready" not in st.session_state:
+    st.session_state.analysis_ready = False
+
+if "analysis_data" not in st.session_state:
+    st.session_state.analysis_data = None
+
 
 # --------------------------------------------------
 # SIDEBAR
@@ -43,7 +47,7 @@ decision_mode = st.sidebar.radio(
 )
 
 manual_framework = None
-if decision_mode.startswith("Manual"):
+if decision_mode == "Manual (I choose framework)":
     manual_framework = st.sidebar.selectbox(
         "Choose Framework",
         ["RICE", "ICE", "MoSCoW", "Kano"]
@@ -51,76 +55,72 @@ if decision_mode.startswith("Manual"):
 
 run_clicked = st.sidebar.button("🚀 Run PM-GPT")
 
+
 # --------------------------------------------------
 # INPUT
 # --------------------------------------------------
-st.markdown("## 🧠 Describe the Product Problem")
+st.subheader("🧠 Describe the Product Problem")
 
-user_problem = st.text_area(
+problem_text = st.text_area(
     "Product Problem",
-    placeholder="Example: Users abandon onboarding due to too many steps and unclear value early on...",
+    placeholder=(
+        "Example: Users drop off during onboarding due to KYC failures, "
+        "increasing support costs and delaying first transaction completion."
+    ),
+    height=160,
     label_visibility="collapsed"
 )
 
-# --------------------------------------------------
-# SESSION STATE
-# --------------------------------------------------
-for key in [
-    "problem_summary",
-    "features",
-    "framework",
-    "explanation",
-    "scored_features",
-    "roadmap"
-]:
-    if key not in st.session_state:
-        st.session_state[key] = None
 
 # --------------------------------------------------
-# PIPELINE
+# RUN PIPELINE
 # --------------------------------------------------
-if run_clicked and user_problem.strip():
+if run_clicked:
+    st.session_state.analysis_ready = False
+    st.session_state.analysis_data = None
 
-    # 1️⃣ Problem understanding (PM diagnosis)
-    mapper = ProblemMapper()
-    st.session_state.problem_summary = mapper.map_problem([user_problem])
+    if problem_text.strip():
+        problem_mapper = ProblemMapper()
+        problem_data = problem_mapper.map(problem_text)
 
-    # 2️⃣ Feature generation
-    generator = FeatureGenerator()
-    st.session_state.features = generator.generate(
-        st.session_state.problem_summary
-    )
+        feature_generator = FeatureGenerator()
+        features = feature_generator.generate(problem_data.get("summary", ""))
 
-    # 3️⃣ Framework selection (IMPORTANT FIX: use RAW problem)
-    if decision_mode.startswith("Auto"):
-        selector = FrameworkSelector()
-        st.session_state.framework = selector.select(user_problem)
+        if decision_mode == "Auto (PM-GPT decides)":
+            framework_selector = FrameworkSelector()
+            framework = framework_selector.select(problem_text)
+        else:
+            framework = manual_framework
+
+        framework_explainer = FrameworkExplainer()
+        framework_explanation = framework_explainer.explain(framework, {})
+
+        strategy_resolver = StrategyResolver()
+        scored_features = strategy_resolver.resolve(framework, features)
+
+        roadmap_generator = RoadmapGenerator()
+        roadmap = roadmap_generator.generate(scored_features)
+
+        st.session_state.analysis_data = {
+            "problem": problem_data,
+            "features": features,
+            "framework": framework,
+            "framework_explanation": framework_explanation,
+            "prioritization": scored_features,
+            "roadmap": roadmap
+        }
+
+        st.session_state.analysis_ready = True
     else:
-        st.session_state.framework = manual_framework
+        st.warning("Please describe a product problem to continue.")
 
-    # 4️⃣ Framework explanation
-    explainer = FrameworkExplainer()
-    st.session_state.explanation = explainer.explain(
-        st.session_state.framework, {}
-    )
-
-    # 5️⃣ Feature prioritization
-    resolver = StrategyResolver()
-    st.session_state.scored_features = resolver.resolve(
-        st.session_state.framework,
-        st.session_state.features
-    )
-
-    # 6️⃣ Roadmap generation
-    roadmap_gen = RoadmapGenerator()
-    st.session_state.roadmap = roadmap_gen.generate(
-        st.session_state.scored_features
-    )
 
 # --------------------------------------------------
-# RESULTS
+# OUTPUT
 # --------------------------------------------------
-if st.session_state.roadmap:
+if st.session_state.analysis_ready:
+    data = st.session_state.analysis_data
+    problem = data.get("problem", {})
 
     tabs = st.tabs([
         "🧩 Problem Insight",
@@ -130,96 +130,77 @@ if st.session_state.roadmap:
         "🗺 Roadmap"
     ])
 
-    # -----------------------------
+    # -------------------------
+    # PROBLEM INSIGHT (REFINED)
+    # -------------------------
     with tabs[0]:
-        st.subheader("Problem Summary")
-        st.markdown(f"**{st.session_state.problem_summary}**")
+        st.subheader("🚨 Core Problem")
+        st.error(problem.get("core_problem", "Not identified"))
 
-        st.caption(
-            "This summary reflects a structured PM diagnosis based on the product problem described."
-        )
+        st.subheader("❌ Critical Failure Point")
+        st.warning(problem.get("user_failure_point", "Not specified"))
 
-    # -----------------------------
+        st.subheader("📉 Business Impact")
+        for impact in problem.get("business_impact", []):
+            st.markdown(f"- {impact}")
+
+        st.subheader("⛓ Constraints")
+        for c in problem.get("constraints", []):
+            st.markdown(f"- {c}")
+
+        st.subheader("🎯 Success Definition")
+        st.success(problem.get("success_definition", "Not defined"))
+
+        st.divider()
+        st.subheader("🧠 PM Verdict")
+        st.info(problem.get("summary", ""))
+
+    # -------------------------
+    # FEATURES
+    # -------------------------
     with tabs[1]:
         st.subheader("Generated Feature Ideas")
-        for feature in st.session_state.features:
-            st.markdown(f"- {feature}")
+        for f in data["features"]:
+            st.markdown(f"- {f}")
 
-    # -----------------------------
+    # -------------------------
+    # FRAMEWORK
+    # -------------------------
     with tabs[2]:
         st.subheader("Selected Framework")
-        st.success(st.session_state.framework)
-
-        with st.expander("📘 Framework Rationale"):
-            st.info(st.session_state.explanation)
+        st.success(data["framework"])
+        st.info(data["framework_explanation"])
 
         with st.expander("⚖️ Framework Comparison"):
             comparison = FrameworkComparison()
             st.table(comparison.compare())
 
-    # -----------------------------
+    # -------------------------
+    # PRIORITIZATION
+    # -------------------------
     with tabs[3]:
         st.subheader("Feature Prioritization")
-        st.dataframe(
-            st.session_state.scored_features,
-            width="stretch"
-        )
+        for item in data["prioritization"]:
+            st.markdown(f"- **{item['feature']}** (score: {item['score']})")
 
-    # -----------------------------
+    # -------------------------
+    # ROADMAP
+    # -------------------------
     with tabs[4]:
-        st.subheader("Product Roadmap")
-        for phase, items in st.session_state.roadmap.items():
+        st.subheader("6-Month Product Roadmap")
+        for phase, items in data["roadmap"].items():
             st.markdown(f"### {phase}")
             for item in items:
                 st.markdown(f"- {item}")
 
-    # --------------------------------------------------
-    # PM REASONING
-    # --------------------------------------------------
-    st.divider()
-    st.markdown("## 🧠 PM Reasoning")
-
-    narrator = DecisionNarrator()
-
-    st.markdown("### 📌 Framework Rationale")
-    st.info(
-        narrator.explain_framework_choice(
-            st.session_state.framework
-        )
-    )
-
-    st.markdown("### 📌 Prioritization Rationale")
-    st.info(
-        narrator.explain_prioritization(
-            st.session_state.scored_features
-        )
-    )
-
-    st.markdown("### 📌 Roadmap Rationale")
-    st.info(
-        narrator.explain_roadmap()
-    )
-
-    # --------------------------------------------------
+    # -------------------------
     # EXPORT
-    # --------------------------------------------------
+    # -------------------------
     st.divider()
-    st.markdown("## 📤 Export Full Product Analysis")
-
     exporter = RoadmapExporter()
 
-    analysis_data = {
-        "problem": st.session_state.problem_summary,
-        "features": st.session_state.features,
-        "framework": st.session_state.framework,
-        "explanation": st.session_state.explanation,
-        "prioritization": st.session_state.scored_features,
-        "roadmap": st.session_state.roadmap
-    }
-
     if st.button("📄 Generate Full Analysis PDF"):
-        pdf_path = exporter.export_full_analysis(analysis_data)
-
+        pdf_path = exporter.export_full_analysis(data)
         with open(pdf_path, "rb") as f:
             st.download_button(
                 "⬇️ Download PDF",
@@ -227,8 +208,3 @@ if st.session_state.roadmap:
                 file_name=pdf_path.split("/")[-1],
                 mime="application/pdf"
             )
-
-        st.success("Full analysis PDF generated successfully!")
-
-elif run_clicked:
-    st.warning("Please enter a product problem to continue.")
