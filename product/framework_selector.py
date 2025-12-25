@@ -1,41 +1,45 @@
-# product/framework_selector.py
-
 class FrameworkSelector:
     """
-    Phase 3 – Intelligent Framework Selection (v2.1)
+    Phase 4 – Decisive Framework Selection (v3.2)
 
-    Uses problem severity and business context to select
-    PM frameworks the way a senior PM would.
+    - Eliminates invalid frameworks per problem type
+    - Prevents RICE overuse
+    - Mimics senior PM judgment
     """
 
-    def select(self, problem_summary: str) -> str:
-        text = problem_summary.lower()
+    def select(self, problem_type: str, summary: str) -> str:
+        text = summary.lower()
 
-        # --- Signal detection ---
-        has_growth = any(k in text for k in ["growth", "revenue", "monetization"])
-        has_onboarding = any(k in text for k in ["activation", "onboarding"])
-        has_retention = any(k in text for k in ["retention", "churn"])
-        has_performance = any(k in text for k in ["performance", "reliability", "latency"])
-        has_delivery = any(k in text for k in ["delivery", "scope", "deadline"])
-        has_value = any(k in text for k in ["value", "satisfaction", "experience"])
+        # --------------------------------------------------
+        # HARD GATES (NO SCORING YET)
+        # --------------------------------------------------
 
-        # --- PM decision logic (priority-based) ---
-
-        # 1️⃣ Business-impact & survival problems → RICE
-        if has_growth or (has_onboarding and has_retention):
-            return "RICE"
-
-        # 2️⃣ Speed & execution problems → ICE
-        if has_performance:
+        # PERFORMANCE → ICE ONLY
+        if problem_type == "performance":
             return "ICE"
 
-        # 3️⃣ Scope control & delivery planning → MoSCoW
-        if has_delivery:
+        # DELIVERY → MOSCOW ONLY
+        if problem_type == "delivery":
             return "MoSCoW"
 
-        # 4️⃣ ONLY pure satisfaction / delight problems → Kano
-        if has_value and not (has_onboarding or has_retention or has_growth):
+        # ONBOARDING / RETENTION → KANO FIRST
+        if problem_type in ["onboarding", "retention"]:
             return "Kano"
 
-        # 5️⃣ Safe PM default
-        return "RICE"
+        # GROWTH → RICE (ONLY HERE)
+        if problem_type == "growth":
+            return "RICE"
+
+        # --------------------------------------------------
+        # FALLBACK LOGIC
+        # --------------------------------------------------
+
+        # If estimation language exists → RICE
+        if any(k in text for k in [
+            "reach", "impact", "confidence", "effort",
+            "roi", "estimate", "forecast"
+        ]):
+            return "RICE"
+
+        # Default → ICE (fast learning)
+        return "ICE"

@@ -1,132 +1,133 @@
+# product/prioritization_strategy.py
+
 from typing import List, Dict
-import math
 
 
-# --------------------------------------------------
-# Base Strategy
-# --------------------------------------------------
 class BaseStrategy:
     def apply(self, features: List[str]) -> List[Dict]:
         raise NotImplementedError
 
 
-# --------------------------------------------------
-# RICE
-# --------------------------------------------------
 class RICEStrategy(BaseStrategy):
+    """
+    PM-grade RICE scoring with explicit assumptions.
+    Scores are intentionally bounded and explainable.
+    """
+
     def apply(self, features: List[str]) -> List[Dict]:
         scored = []
-        for f in features:
-            reach = max(1, len(f.split()))
-            impact = 1 + sum(
-                1 for kw in ["improve", "optimize", "fix", "reduce", "enhance"]
-                if kw in f.lower()
-            )
-            confidence = 0.7
-            effort = max(1, math.ceil(len(f) / 30))
-            score = (reach * impact * confidence) / effort
-            scored.append({"feature": f, "score": round(score, 3)})
+
+        for feature in features:
+            name = feature.lower()
+
+            # ---- Reach (how many users affected)
+            if "onboarding" in name or "kyc" in name:
+                reach = 5
+            else:
+                reach = 3
+
+            # ---- Impact (effect on first transaction completion)
+            if "retry" in name or "reduce" in name or "first" in name:
+                impact = 5
+            elif "guide" in name or "status" in name:
+                impact = 4
+            else:
+                impact = 3
+
+            # ---- Confidence (how certain we are it will work)
+            if "explanation" in name or "status" in name:
+                confidence = 4
+            else:
+                confidence = 3
+
+            # ---- Effort (engineering + compliance complexity)
+            if "redesign" in name:
+                effort = 5
+            elif "automated" in name:
+                effort = 4
+            else:
+                effort = 3
+
+            score = round((reach * impact * confidence) / effort, 2)
+
+            scored.append({
+                "feature": feature,
+                "score": score
+            })
+
         return scored
 
 
-# --------------------------------------------------
-# ICE
-# --------------------------------------------------
 class ICEStrategy(BaseStrategy):
+    """
+    Lightweight prioritization for fast decisions.
+    """
+
     def apply(self, features: List[str]) -> List[Dict]:
         scored = []
-        for f in features:
-            impact = 1 + sum(
-                1 for kw in ["improve", "optimize", "fix", "reduce", "increase", "add"]
-                if kw in f.lower()
-            )
-            confidence = 0.6
-            ease = max(1, 5 - len(f) // 40)
-            score = (impact * confidence) / ease
-            scored.append({"feature": f, "score": round(score, 3)})
+
+        for feature in features:
+            name = feature.lower()
+
+            impact = 4 if "onboarding" in name else 3
+            confidence = 3
+            effort = 3 if "redesign" not in name else 4
+
+            score = round((impact * confidence) / effort, 2)
+
+            scored.append({
+                "feature": feature,
+                "score": score
+            })
+
         return scored
 
 
-# --------------------------------------------------
-# MoSCoW
-# --------------------------------------------------
 class MoSCoWStrategy(BaseStrategy):
+    """
+    Requirement classification — converted to scores for UI compatibility.
+    """
+
     def apply(self, features: List[str]) -> List[Dict]:
-        mapping = {"must": 100, "should": 75, "could": 50}
         scored = []
 
-        for f in features:
-            text = f.lower()
-            if any(w in text for w in ["fix", "critical", "blocker", "reliabil"]):
-                cat = "must"
-            elif any(w in text for w in ["improve", "enhance", "optimize"]):
-                cat = "should"
+        for i, feature in enumerate(features):
+            if i < 3:
+                score = 5  # Must-have
+            elif i < 6:
+                score = 3  # Should-have
             else:
-                cat = "could"
+                score = 1  # Could-have
 
             scored.append({
-                "feature": f,
-                "score": mapping[cat],
-                "moscow": cat
+                "feature": feature,
+                "score": score
             })
 
         return scored
 
 
-# --------------------------------------------------
-# Kano
-# --------------------------------------------------
 class KanoStrategy(BaseStrategy):
+    """
+    Simplified Kano mapping.
+    """
+
     def apply(self, features: List[str]) -> List[Dict]:
-        mapping = {
-            "basic": 80,
-            "performance": 60,
-            "delighter": 40
-        }
         scored = []
 
-        for f in features:
-            text = f.lower()
-            if any(w in text for w in ["fix", "error", "crash", "reliabil"]):
-                cat = "basic"
-            elif any(w in text for w in ["optimize", "performance", "speed", "latency"]):
-                cat = "performance"
+        for feature in features:
+            name = feature.lower()
+
+            if "retry" in name or "reduce" in name:
+                score = 5  # Performance need
+            elif "guide" in name or "checklist" in name:
+                score = 4  # Delighter
             else:
-                cat = "delighter"
+                score = 3  # Basic expectation
 
             scored.append({
-                "feature": f,
-                "score": mapping[cat],
-                "kano_category": cat
+                "feature": feature,
+                "score": score
             })
 
         return scored
-
-
-# --------------------------------------------------
-# 🔑 MASTER CONTROLLER (THIS WAS MISSING)
-# --------------------------------------------------
-class PrioritizationStrategy:
-    """
-    Routes feature list to the correct prioritization framework.
-    This is the ONLY class app.py should import.
-    """
-
-    def __init__(self, framework: str):
-        self.framework = framework.upper()
-
-        self.strategy_map = {
-            "RICE": RICEStrategy(),
-            "ICE": ICEStrategy(),
-            "MOSCOW": MoSCoWStrategy(),
-            "KANO": KanoStrategy()
-        }
-
-    def prioritize(self, features: List[str]) -> List[Dict]:
-        strategy = self.strategy_map.get(self.framework)
-
-        if not strategy:
-            # Safe fallback
-            return [{"feature": f, "score": 0} for f in features]
-
-        return strategy.apply(features)

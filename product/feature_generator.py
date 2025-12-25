@@ -1,71 +1,137 @@
-# product/feature_generator.py
-
 from typing import List
 
 
 class FeatureGenerator:
     """
-    Generates product features based on a PM-grade problem summary.
-    Designed to be domain-aware and avoid generic feature output.
+    Phase 4 – Context-Aware Feature Generation (v4.0)
+
+    - Generates DIFFERENT features for the SAME problem_type
+    - Uses PM mental models:
+        • Funnel stage
+        • Dominant business risk
+    - Prevents repetitive, generic outputs
     """
 
-    def __init__(self):
-        pass
-
-    def generate(self, problem_summary: str) -> List[str]:
-        text = problem_summary.lower()
-        features: List[str] = []
+    def generate(self, problem_type: str, summary: str) -> List[str]:
+        text = summary.lower()
 
         # --------------------------------------------------
-        # Fintech / Compliance-aware features
+        # DERIVED PM CONTEXT (LIGHTWEIGHT, RULE-BASED)
         # --------------------------------------------------
-        if "kyc" in text or "compliance" in text or "verification" in text:
-            features.extend([
-                "Provide real-time KYC failure explanations with compliant retry guidance",
-                "Introduce a progress-based KYC status indicator during onboarding",
-                "Add compliant document upload tips to reduce verification errors",
-                "Enable guided retry flows for failed KYC attempts without restarting onboarding"
-            ])
+
+        # Funnel stage inference
+        if any(k in text for k in ["first value", "activation", "signup", "onboarding", "kyc"]):
+            funnel = "activation"
+        elif any(k in text for k in ["engagement", "repeat", "habit", "usage"]):
+            funnel = "engagement"
+        elif any(k in text for k in ["pricing", "upgrade", "monetization", "conversion"]):
+            funnel = "monetization"
+        elif any(k in text for k in ["latency", "reliability", "downtime", "failure"]):
+            funnel = "reliability"
+        else:
+            funnel = "general"
+
+        # Risk inference
+        if any(k in text for k in ["compliance", "regulatory", "kyc", "audit"]):
+            risk = "compliance"
+        elif any(k in text for k in ["revenue", "pricing", "upgrade", "churn"]):
+            risk = "revenue"
+        elif any(k in text for k in ["trust", "confidence", "credibility"]):
+            risk = "trust"
+        elif any(k in text for k in ["support", "cost", "operations"]):
+            risk = "cost"
+        else:
+            risk = "speed"
 
         # --------------------------------------------------
-        # Onboarding & Activation
+        # FEATURE GENERATION (PM-REALISTIC)
         # --------------------------------------------------
-        if "onboarding" in text or "activation" in text or "first transaction" in text:
-            features.extend([
-                "Redesign onboarding to prioritize completion of the first successful transaction",
-                "Reduce non-essential steps before first value is achieved",
-                "Introduce contextual guidance during first-time user flows",
-                "Add an onboarding checklist to guide users to first value"
-            ])
 
-        # --------------------------------------------------
-        # Support Cost / Operational Load
-        # --------------------------------------------------
-        if "support" in text or "tickets" in text or "operational" in text:
-            features.extend([
-                "Add in-product self-service help for common onboarding and KYC issues",
-                "Surface proactive alerts for known onboarding failure patterns",
-                "Create automated responses for repeat onboarding-related support tickets"
-            ])
+        # -------- ONBOARDING --------
+        if problem_type == "onboarding":
 
-        # --------------------------------------------------
-        # Fallback (if text is very generic)
-        # --------------------------------------------------
-        if not features:
-            features = [
-                "Improve onboarding clarity to reduce early user drop-off",
-                "Introduce contextual help to guide users through critical flows",
-                "Optimize early workflows to reduce user confusion"
+            if risk == "compliance":
+                return [
+                    "Introduce progressive disclosure for compliance steps instead of upfront blocking",
+                    "Add real-time validation with explicit failure reasons during document upload",
+                    "Provide guided retry paths instead of forcing onboarding restarts",
+                    "Display verification status clearly with expected resolution timelines",
+                    "Reduce non-essential data collection before first compliance checkpoint",
+                ]
+
+            return [
+                "Reduce non-essential fields before the user reaches first value",
+                "Introduce a progressive onboarding flow that unlocks steps only when required",
+                "Display a clear progress indicator tied to first-value completion",
+                "Add inline microcopy to explain why each required step exists",
+                "Surface a first-success confirmation moment to reinforce completion",
             ]
 
-        # --------------------------------------------------
-        # Deduplicate while preserving order
-        # --------------------------------------------------
-        seen = set()
-        unique_features = []
-        for f in features:
-            if f not in seen:
-                unique_features.append(f)
-                seen.add(f)
+        # -------- RETENTION --------
+        if problem_type == "retention":
 
-        return unique_features
+            if funnel == "monetization":
+                return [
+                    "Clarify feature gating with in-context previews of locked value",
+                    "Surface upgrade prompts only after users experience core value",
+                    "Align pricing tiers with observed usage patterns",
+                    "Reduce surprise paywalls by signaling limitations earlier",
+                    "Introduce time-bound upgrade nudges based on value realization",
+                ]
+
+            return [
+                "Introduce early-warning signals to detect disengaging users",
+                "Trigger re-engagement nudges based on drop-off behavior patterns",
+                "Add habit-forming reminders tied to core value moments",
+                "Personalize content or workflows based on prior usage",
+                "Create lightweight win-back flows for inactive users",
+                "Introduce lifecycle-based messaging instead of generic notifications",
+            ]
+
+        # -------- PERFORMANCE --------
+        if problem_type == "performance":
+            return [
+                "Instrument latency and failure metrics across critical user flows",
+                "Introduce graceful degradation when non-critical services fail",
+                "Add user-visible system status indicators during outages",
+                "Prioritize reliability improvements over feature expansion",
+                "Create automated alerts tied to user-impact thresholds",
+            ]
+
+        # -------- DELIVERY --------
+        if problem_type == "delivery":
+            return [
+                "Introduce a single owner model for roadmap commitments",
+                "Establish must-ship vs nice-to-have delivery tiers",
+                "Limit work-in-progress to reduce context switching",
+                "Create quarterly delivery confidence checkpoints",
+                "Align roadmap planning with engineering capacity forecasts",
+            ]
+
+        # -------- SATISFACTION --------
+        if problem_type == "satisfaction":
+            return [
+                "Collect contextual feedback immediately after key interactions",
+                "Personalize workflows based on user preferences",
+                "Reduce friction in commonly repeated actions",
+                "Introduce delight moments in high-frequency flows",
+                "Close the feedback loop by visibly acting on user input",
+            ]
+
+        # -------- GROWTH --------
+        if problem_type == "growth":
+            return [
+                "Optimize conversion points with reduced cognitive load",
+                "Introduce referral or viral loops tied to core value moments",
+                "Experiment with pricing or packaging for expansion revenue",
+                "Improve activation-to-conversion handoff",
+                "Instrument growth experiments with clear success metrics",
+            ]
+
+        # -------- SAFE DEFAULT --------
+        return [
+            "Clarify core user value proposition",
+            "Reduce unnecessary friction in primary workflows",
+            "Improve feedback loops between users and the product",
+            "Prioritize changes with measurable user impact",
+        ]
