@@ -85,15 +85,21 @@ if run_clicked and problem_text.strip():
     problem_data = ProblemMapper().map(problem_text)
     problem_type = problem_data.get("problem_type", "general")
 
+    # Get summary with a default value if not present
+    problem_summary = problem_data.get("summary", problem_text)
+
     # 2️⃣ Feature Generation (problem-type aware)
     features = FeatureGenerator().generate(
         problem_type=problem_type,
-        summary=problem_data["summary"]
+        summary=problem_summary
     )
 
     # 3️⃣ Framework Selection
     if decision_mode == "Auto (PM-GPT decides)":
-        framework = FrameworkSelector().select(problem_data["summary"])
+        framework = FrameworkSelector().select(
+            problem_type=problem_type,
+            summary=problem_summary
+        )
     else:
         framework = manual_framework
 
