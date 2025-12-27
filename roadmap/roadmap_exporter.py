@@ -83,10 +83,10 @@ class RoadmapExporter:
         elements.append(Spacer(1, 14))
 
         # -------------------------
-        # PROBLEM SUMMARY
+        # PM NARRATIVE SUMMARY (COSMETIC FIX)
         # -------------------------
         elements.append(
-            Paragraph("Problem Summary", self.styles["Heading2"])
+            Paragraph("PM Narrative Summary", self.styles["Heading2"])
         )
 
         problem = analysis.get("problem", {})
@@ -141,11 +141,15 @@ class RoadmapExporter:
         elements.append(
             Paragraph("Framework Explanation", self.styles["Heading3"])
         )
+
+        # 🔥 COSMETIC PM-GRADE WORDING
+        framework_text = (
+            f"{analysis.get('framework', '')} was selected to enforce delivery discipline "
+            f"by clearly separating must-have outcomes from lower-priority scope."
+        )
+
         elements.append(
-            Paragraph(
-                str(analysis.get("framework_explanation", "")),
-                self.styles["Normal"]
-            )
+            Paragraph(framework_text, self.styles["Normal"])
         )
         elements.append(Spacer(1, 12))
 
