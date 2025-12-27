@@ -1,3 +1,16 @@
+# --------------------------------------------------
+# STREAMLIT CLOUD PATH FIX (DO NOT REMOVE)
+# --------------------------------------------------
+import sys
+import os
+
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
+# --------------------------------------------------
+# IMPORTS
+# --------------------------------------------------
 import streamlit as st
 
 from product.problem_mapper import ProblemMapper
@@ -242,15 +255,11 @@ if run_clicked and problem_text.strip():
                 st.markdown(f"- {item}")
 
     # -------------------------
-    # TAB 6: DECISION REVIEW (🔥 FLAGSHIP)
+    # TAB 6: DECISION REVIEW
     # -------------------------
     with tabs[5]:
-        reasoning_tab, exec_tab = st.tabs([
-            "🧠 PM Reasoning",
-            "🏛 Executive Review"
-        ])
+        reasoning_tab, exec_tab = st.tabs(["🧠 PM Reasoning", "🏛 Executive Review"])
 
-        # ---- PM REASONING ----
         with reasoning_tab:
             st.markdown("### 📌 Framework Rationale")
             st.info(st.session_state.analysis_payload["reasoning"]["framework"])
@@ -267,7 +276,6 @@ if run_clicked and problem_text.strip():
             st.markdown("### 📌 Success Metrics")
             st.info(st.session_state.analysis_payload["reasoning"]["metrics"])
 
-        # ---- EXECUTIVE REVIEW ----
         with exec_tab:
             st.markdown("### ❌ What We Explicitly Did NOT Do")
             st.info(judgment.get("did_not_do", "No explicit exclusions documented."))
