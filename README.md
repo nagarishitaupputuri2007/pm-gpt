@@ -1,134 +1,97 @@
-# PM-GPT — Product Management Copilot 🚀
+# 🚀 PM-GPT — AI-Powered Product Management Copilot
 
-PM-GPT is an AI-powered Product Management copilot that helps transform ambiguous product problems into **structured insights, prioritized feature decisions, and defensible product roadmaps**.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat&logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/downloads/)
 
-This project is built to reflect **real-world PM thinking**, not just automation. Every output is designed to mirror how strong Product Managers reason, communicate trade-offs, and justify decisions.
+PM-GPT is an AI-powered **Product Management Copilot** that transforms ambiguous product challenges into **structured insights, prioritized feature decisions, and defensible product roadmaps**.
+
+This project is intentionally built to reflect **real-world PM thinking**, not surface-level automation. Every output mirrors how experienced Product Managers analyze problems, reason through trade-offs, and communicate decisions clearly to stakeholders and leadership.
 
 🔗 **Live Demo:** https://pm-gpt-copilot.streamlit.app
 
 ---
 
-## Why PM-GPT?
+## ✨ Key Capabilities
 
-Product decisions often fail not because of a lack of ideas — but because of:
-- unclear problem framing  
-- weak prioritization logic  
-- poor articulation of trade-offs  
-- decisions that don’t hold up under leadership scrutiny  
+### 🎯 Problem Analysis
+- Identifies the true core problem behind vague product signals  
+- Maps user pain points, friction areas, and failure modes  
+- Frames problems using impact, urgency, and constraints  
 
-PM-GPT addresses this gap by guiding users through a **PM-grade decision pipeline**, producing outputs that are structured, explainable, and leadership-ready.
+### 🛠 Feature Ideation
+- Generates realistic, high-leverage solution ideas  
+- Aligns features with problem archetypes and business context  
+- Avoids speculative or impractical product thinking  
 
----
+### ⚖️ Smart Prioritization
+- Selects the most appropriate framework (RICE, ICE, Kano, MoSCoW)  
+- Explains *why* a framework fits the situation  
+- Allows side-by-side comparison of prioritization outcomes  
 
-## What PM-GPT Does
-
-PM-GPT walks through the complete product decision lifecycle:
-
-### 1. Problem Insight
-- Identifies the core product problem  
-- Highlights where users fail  
-- Surfaces business impact and execution constraints  
-- Defines success clearly  
-
-### 2. Feature Generation
-- Generates solution ideas aligned to the problem type  
-- Focuses on actionable, realistic product interventions  
-
-### 3. Framework Selection
-- Automatically selects the right prioritization framework (RICE, ICE, Kano, MoSCoW)  
-- Explains *why* the framework fits the problem  
-- Allows manual override for comparison  
-
-### 4. Feature Prioritization
-- Scores features using PM-relevant signals  
-- Produces ranked outputs suitable for roadmap planning  
-
-### 5. Roadmap Creation
-- Converts priorities into a structured 6-month roadmap  
-- Keeps scope and sequencing realistic  
-
-### 6. Decision Review (Flagship Feature)
-- Explains reasoning behind decisions  
+### 📊 Decision Intelligence
+- Simulates executive and stakeholder pushback  
 - Documents trade-offs, risks, and rejected alternatives  
-- Simulates leadership pushback and PM responses  
+- Produces PM-grade narratives suitable for reviews and interviews  
 
-### 7. Export
-- Generates a professional PDF containing the full analysis  
-- Suitable for reviews, interviews, or stakeholder discussions  
-
----
-
-## Screenshots
-
-### 1. Landing Screen
-![Landing Screen](assets/01_landing_screen.png)
-
-### 2. Problem Insight
-![Problem Insight](assets/02_problem_insight.png)
-
-### 3. Generated Features
-![Generated Features](assets/03_generated_features.png)
-
-### 4. Framework Selection
-![Framework Selection](assets/04_framework_selection.png)
-
-### 5. Prioritization
-![Prioritization](assets/05_prioritization.png)
-
-### 6. Roadmap
-![Roadmap](assets/06_roadmap.png)
-
-### 7. Decision Review — Executive View
-![Decision Review Executive](assets/07_decision_review_executive.png)
-
-### 8. Decision Review — PM Reasoning
-![Decision Review PM Reasoning](assets/08_decision_review_pm_reasoning.png)
+### 📅 Roadmap Generation
+- Builds a realistic 6-month product roadmap  
+- Balances strategy, execution, and resource constraints  
+- Exports a professional PDF with full reasoning  
 
 ---
 
-## Project Structure
+## 🚀 Getting Started
+
+### Prerequisites
+- Python 3.9+ (tested on Python 3.11)
+- pip
+
+### Installation & Run
+
+```bash
+git clone https://github.com/nagarishitaupputuri2007/pm-gpt.git
+cd pm-gpt
+pip install -r requirements.txt
+streamlit run ui/app.py
+```
+
+---
+
+## 🏗 Project Structure
 
 ```
 pm-gpt/
-├── product/        # Core PM reasoning modules
-├── roadmap/        # Roadmap generation & PDF export
-├── ui/             # Streamlit application
-├── assets/         # Screenshots and demo media
-├── demo/           # Product demo screencast
-├── exports/        # Generated analysis outputs
+├── product/          # Core PM reasoning and decision logic
+├── roadmap/          # Roadmap generation & PDF export
+├── ui/               # Streamlit user interface
+├── tests/            # Test suites
+├── assets/           # Screenshots and demo media
+├── demo/             # Product demo recordings
 └── README.md
 ```
 
 ---
 
-## Tech Stack
+## 🎯 Who This Project Is For
 
-- Python  
-- Streamlit  
-- ReportLab  
-- Modular PM reasoning architecture  
+- Aspiring Product Managers (APM / PM / Intern roles)  
+- PM interview preparation and case discussion practice  
+- Demonstrating structured, defensible product thinking  
+- Recruiters evaluating real-world decision-making ability  
 
----
-
-## Who This Is For
-
-- Product Management roles (APM / PM / Intern)  
-- PM interview preparation  
-- Demonstrating structured product thinking  
-- Recruiters evaluating real-world decision-making skills  
-
-This project is intentionally built to be **readable, explainable, and defensible** — not just impressive.
+This project prioritizes **clarity, explainability, and reasoning quality** — the same standards used in real PM teams.
 
 ---
 
-## Author
+## 👩‍💻 Author
 
-**Nagarishta Upputuri**  
+**Nagarishita Upputuri**  
 B.Tech CSE (AI & Future Technologies)  
 SRM University AP  
 
 ---
 
-## License
+## 📄 License
 
-This project is open for learning and demonstration purposes.
+This project is licensed under the **MIT License**.
