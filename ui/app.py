@@ -27,7 +27,7 @@ st.divider()
 
 
 # --------------------------------------------------
-# SESSION STATE (CRITICAL)
+# SESSION STATE
 # --------------------------------------------------
 if "analysis_ready" not in st.session_state:
     st.session_state.analysis_ready = False
@@ -81,14 +81,31 @@ problem_text = st.text_area(
 # --------------------------------------------------
 if run_clicked and problem_text.strip():
 
-    # 1️⃣ Problem Insight
+    # 1️⃣ Problem Mapping
     problem_data = ProblemMapper().map(problem_text)
     problem_type = problem_data.get("problem_type", "general")
-
-    # Get summary with a default value if not present
     problem_summary = problem_data.get("summary", problem_text)
 
-    # 2️⃣ Feature Generation (problem-type aware)
+    # SAFE defaults
+    business_impact = problem_data.get(
+        "business_impact",
+        [
+            "Negative impact on key product metrics",
+            "Increased risk of user churn",
+            "Long-term business impact if unresolved"
+        ]
+    )
+
+    constraints = problem_data.get(
+        "constraints",
+        [
+            "Limited engineering capacity",
+            "Need to balance speed with quality",
+            "Execution risk must be managed"
+        ]
+    )
+
+    # 2️⃣ Feature Generation
     features = FeatureGenerator().generate(
         problem_type=problem_type,
         summary=problem_summary
@@ -114,14 +131,14 @@ if run_clicked and problem_text.strip():
     # 6️⃣ Judgment
     narrator = DecisionNarrator()
     judgment = PMJudgmentEngine().generate(
-        problem=problem_data["core_problem"],
-        constraints=problem_data["constraints"],
+        problem=problem_data.get("core_problem", problem_summary),
+        constraints=constraints,
         prioritized_features=scored_features,
         roadmap=roadmap
     )
 
     # --------------------------------------------------
-    # SAVE ANALYSIS (SAFE + BACKWARD COMPATIBLE)
+    # SAVE ANALYSIS
     # --------------------------------------------------
     def safe_call(fn, *args):
         try:
@@ -167,25 +184,25 @@ if run_clicked and problem_text.strip():
     # -------------------------
     with tabs[0]:
         st.subheader("🚨 Core Problem")
-        st.error(problem_data["core_problem"])
+        st.error(problem_data.get("core_problem", problem_summary))
 
         st.subheader("❌ Where Users Fail")
-        st.warning(problem_data["user_failure_point"])
+        st.warning(problem_data.get("user_failure_point", "User friction detected"))
 
         st.subheader("📉 Business Impact")
-        for impact in problem_data["business_impact"]:
+        for impact in business_impact:
             st.markdown(f"- {impact}")
 
         st.subheader("⛓️ Constraints")
-        for c in problem_data["constraints"]:
+        for c in constraints:
             st.markdown(f"- {c}")
 
         st.subheader("🎯 Success Definition")
-        st.success(problem_data["success_definition"])
+        st.success(problem_data.get("success_definition", "Improve key product outcomes"))
 
         st.divider()
         st.subheader("🧠 PM Summary")
-        st.info(problem_data["summary"])
+        st.info(problem_summary)
 
     # -------------------------
     # TAB 2: FEATURES
@@ -211,8 +228,6 @@ if run_clicked and problem_text.strip():
     # -------------------------
     with tabs[3]:
         st.subheader("📊 Feature Prioritization")
-        st.caption("Scores are relative indicators used for ranking, not absolute values.")
-
         for item in scored_features:
             st.markdown(f"- **{item['feature']}** (score: {item['score']})")
 
@@ -235,38 +250,43 @@ if run_clicked and problem_text.strip():
             "🏛 Executive Review"
         ])
 
+        # ---- PM REASONING ----
         with reasoning_tab:
             st.markdown("### 📌 Framework Rationale")
             st.info(st.session_state.analysis_payload["reasoning"]["framework"])
+
             st.markdown("### 📌 Prioritization Rationale")
             st.info(st.session_state.analysis_payload["reasoning"]["prioritization"])
+
             st.markdown("### 📌 Roadmap Rationale")
             st.info(st.session_state.analysis_payload["reasoning"]["roadmap"])
+
             st.markdown("### 📌 Trade-offs Considered")
             st.info(st.session_state.analysis_payload["reasoning"]["tradeoffs"])
+
             st.markdown("### 📌 Success Metrics")
             st.info(st.session_state.analysis_payload["reasoning"]["metrics"])
 
-
+        # ---- EXECUTIVE REVIEW ----
         with exec_tab:
             st.markdown("### ❌ What We Explicitly Did NOT Do")
-            st.info(judgment["did_not_do"])
+            st.info(judgment.get("did_not_do", "No explicit exclusions documented."))
 
             st.markdown("### 🎯 Primary Bet")
-            st.success(judgment["primary_bet"])
+            st.success(judgment.get("primary_bet", "Primary bet identified."))
 
             st.markdown("### ⚠️ Biggest Execution Risk")
-            st.warning(judgment["execution_risk"])
+            st.warning(judgment.get("execution_risk", "Execution risk identified."))
 
             st.markdown("### ⚖️ Key Trade-off")
-            st.info(judgment["tradeoff"])
+            st.info(judgment.get("tradeoff", "Trade-off evaluated."))
 
             st.markdown("### 🧑‍💼 Leadership Pushback & PM Response")
-            st.markdown(judgment["leadership_exchange"])
+            st.markdown(judgment.get("leadership_exchange", "No leadership objections recorded."))
 
 
 # --------------------------------------------------
-# EXPORT (NO PAGE JUMP)
+# EXPORT
 # --------------------------------------------------
 if st.session_state.analysis_ready:
     st.divider()
@@ -289,4 +309,3 @@ if st.session_state.analysis_ready:
                 file_name=st.session_state.pdf_path.split("/")[-1],
                 mime="application/pdf"
             )
-            
