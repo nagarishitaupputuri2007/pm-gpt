@@ -189,11 +189,11 @@ if run_clicked and problem_text.strip():
         st.subheader("❌ Where Users Fail")
         st.warning(problem_data.get("user_failure_point", "User friction detected"))
 
-        st.subheader("📉 Business Impact")
+        st.subheader("📉 Business Impact (Why This Matters)")
         for impact in business_impact:
             st.markdown(f"- {impact}")
 
-        st.subheader("⛓️ Constraints")
+        st.subheader("⛓️ Execution Constraints")
         for c in constraints:
             st.markdown(f"- {c}")
 
@@ -201,7 +201,7 @@ if run_clicked and problem_text.strip():
         st.success(problem_data.get("success_definition", "Improve key product outcomes"))
 
         st.divider()
-        st.subheader("🧠 PM Summary")
+        st.subheader("🧠 PM Narrative Summary")
         st.info(problem_summary)
 
     # -------------------------
