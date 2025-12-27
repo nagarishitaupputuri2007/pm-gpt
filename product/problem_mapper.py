@@ -41,7 +41,7 @@ class ProblemMapper:
         )
 
         # -------------------------
-        # BUSINESS IMPACT (🔥 FIXED)
+        # BUSINESS IMPACT
         # -------------------------
         if problem_type == "activation":
             business_impact = [
@@ -69,7 +69,7 @@ class ProblemMapper:
             ]
 
         # -------------------------
-        # CONSTRAINTS (🔥 FIXED)
+        # CONSTRAINTS
         # -------------------------
         if problem_type == "activation":
             constraints = [
@@ -109,10 +109,34 @@ class ProblemMapper:
             else "Improve overall product outcomes."
         )
 
-        summary = (
-            f"We believe {problem_type} is the highest-leverage problem to address right now, "
-            f"because users are failing at a critical moment in their journey. "
-            f"This directly impacts both user trust and key business outcomes if left unresolved."
+        # -------------------------
+        # PM-GRADE SUMMARY (🔥 UPGRADED)
+        # -------------------------
+        if problem_type == "activation":
+            summary = (
+                "This is a critical activation problem occurring at a high-leverage moment "
+                "in the user journey. Users are dropping off before reaching first value, "
+                "which directly reduces conversion efficiency and inflates acquisition costs. "
+                "If left unresolved, this bottleneck compounds downstream retention and monetization losses."
+            )
+        elif problem_type == "retention":
+            summary = (
+                "This is a high-impact retention problem affecting the most valuable segment "
+                "of the user base. Power users are disengaging at moments where the product is "
+                "expected to deliver advanced value, leading to churn and revenue contraction. "
+                "Left unaddressed, this erodes lifetime value and long-term growth."
+            )
+        elif problem_type == "performance":
+            summary = (
+                "This problem undermines trust in the product during critical usage moments. "
+                "Reliability and performance issues disproportionately affect core workflows, "
+                "increasing churn risk and operational cost. Addressing this is essential "
+                "before scaling further growth."
+            )
+        else:
+            summary = (
+                "This problem negatively impacts both user experience and business outcomes "
+                "at a critical point in the product journey."
             )
 
         return {
