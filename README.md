@@ -1,120 +1,134 @@
-# 🚀 PM-GPT  
-### An AI Co-Pilot for Product Managers
+# PM-GPT — Product Management Copilot 🚀
 
-PM-GPT is a **decision-support system for Product Managers** that combines NLP techniques with established Product Management frameworks to help teams move from  
-**raw user feedback → structured decisions → actionable product roadmaps**.
+PM-GPT is an AI-powered Product Management copilot that helps transform ambiguous product problems into **structured insights, prioritized feature decisions, and defensible product roadmaps**.
 
-Unlike traditional ML projects that focus on prediction accuracy, PM-GPT focuses on  
-**how product decisions are made, explained, and communicated**.
+This project is built to reflect **real-world PM thinking**, not just automation. Every output is designed to mirror how strong Product Managers reason, communicate trade-offs, and justify decisions.
 
----
-
-## 🚩 Problem Statement
-
-Modern product teams receive large volumes of unstructured user feedback in the form of reviews, complaints, and feature requests.
-
-Manually analyzing this feedback to identify real product problems and decide what to build next is:
-
-- Time-consuming  
-- Highly subjective  
-- Difficult to justify to stakeholders  
-
-While AI tools exist for text analysis and PM frameworks exist for prioritization, there are very few systems that **connect both into a single, end-to-end decision workflow**.
-
-PM-GPT is designed to bridge this gap.
+🔗 **Live Demo:** https://pm-gpt-copilot.streamlit.app
 
 ---
 
-## 🎯 Objectives
+## Why PM-GPT?
 
-- Analyze raw user feedback using NLP techniques  
-- Identify recurring product problems  
-- Convert problems into actionable feature ideas  
-- Prioritize features using standard PM frameworks (RICE, ICE, Kano, MoSCoW)  
-- Generate a realistic 6-month product roadmap  
-- Export a complete product analysis as a PDF  
+Product decisions often fail not because of a lack of ideas — but because of:
+- unclear problem framing  
+- weak prioritization logic  
+- poor articulation of trade-offs  
+- decisions that don’t hold up under leadership scrutiny  
 
----
-
-## 🧠 System Overview
-
-```
-User Feedback
-   ↓
-Text Cleaning & NLP Processing
-   ↓
-Problem Identification
-   ↓
-Feature Ideation
-   ↓
-Feature Prioritization (RICE)
-   ↓
-Roadmap Generation
-   ↓
-Streamlit Web Interface
-   ↓
-Full Analysis PDF Export
-```
+PM-GPT addresses this gap by guiding users through a **PM-grade decision pipeline**, producing outputs that are structured, explainable, and leadership-ready.
 
 ---
 
-## 🗂️ Project Structure
+## What PM-GPT Does
+
+PM-GPT walks through the complete product decision lifecycle:
+
+### 1. Problem Insight
+- Identifies the core product problem  
+- Highlights where users fail  
+- Surfaces business impact and execution constraints  
+- Defines success clearly  
+
+### 2. Feature Generation
+- Generates solution ideas aligned to the problem type  
+- Focuses on actionable, realistic product interventions  
+
+### 3. Framework Selection
+- Automatically selects the right prioritization framework (RICE, ICE, Kano, MoSCoW)  
+- Explains *why* the framework fits the problem  
+- Allows manual override for comparison  
+
+### 4. Feature Prioritization
+- Scores features using PM-relevant signals  
+- Produces ranked outputs suitable for roadmap planning  
+
+### 5. Roadmap Creation
+- Converts priorities into a structured 6-month roadmap  
+- Keeps scope and sequencing realistic  
+
+### 6. Decision Review (Flagship Feature)
+- Explains reasoning behind decisions  
+- Documents trade-offs, risks, and rejected alternatives  
+- Simulates leadership pushback and PM responses  
+
+### 7. Export
+- Generates a professional PDF containing the full analysis  
+- Suitable for reviews, interviews, or stakeholder discussions  
+
+---
+
+## Screenshots
+
+### 1. Landing Screen
+![Landing Screen](assets/01_landing_screen.png)
+
+### 2. Problem Insight
+![Problem Insight](assets/02_problem_insight.png)
+
+### 3. Generated Features
+![Generated Features](assets/03_generated_features.png)
+
+### 4. Framework Selection
+![Framework Selection](assets/04_framework_selection.png)
+
+### 5. Prioritization
+![Prioritization](assets/05_prioritization.png)
+
+### 6. Roadmap
+![Roadmap](assets/06_roadmap.png)
+
+### 7. Decision Review — Executive View
+![Decision Review Executive](assets/07_decision_review_executive.png)
+
+### 8. Decision Review — PM Reasoning
+![Decision Review PM Reasoning](assets/08_decision_review_pm_reasoning.png)
+
+---
+
+## Project Structure
 
 ```
 pm-gpt/
-├── assets/
-│   └── screenshots/
-├── data/
-├── nlp/
-├── product/
-├── roadmap/
-├── ui/
-├── exports/
-├── main.py
-├── requirements.txt
+├── product/        # Core PM reasoning modules
+├── roadmap/        # Roadmap generation & PDF export
+├── ui/             # Streamlit application
+├── assets/         # Screenshots and demo media
+├── demo/           # Product demo screencast
+├── exports/        # Generated analysis outputs
 └── README.md
 ```
 
 ---
 
-## 🧩 Core Features
-
-### 🔍 Problem Insight
-Converts unstructured feedback into clear, human-readable product problems.
-
-### 🛠 Feature Generation
-Translates identified problems into concrete, actionable feature ideas.
-
-### 📐 Framework-Based Prioritization
-Supports auto and manual framework selection with transparent scoring and explanation.
-
-### 🗺 6-Month Product Roadmap
-Quarter-based roadmap (Q1–Q3) reflecting realistic PM planning.
-
-### 📤 Full Analysis PDF Export
-Generates a complete PM-style document suitable for stakeholders and interviews.
-
----
-
-## 🧪 Tech Stack
+## Tech Stack
 
 - Python  
 - Streamlit  
-- Pandas  
-- Scikit-learn  
 - ReportLab  
+- Modular PM reasoning architecture  
 
 ---
 
-## 🧠 Design Philosophy
+## Who This Is For
 
-PM-GPT is intentionally **deterministic and explainable**.
-The goal is to support — not replace — PM judgment.
+- Product Management roles (APM / PM / Intern)  
+- PM interview preparation  
+- Demonstrating structured product thinking  
+- Recruiters evaluating real-world decision-making skills  
+
+This project is intentionally built to be **readable, explainable, and defensible** — not just impressive.
 
 ---
 
-## 👤 Author
+## Author
 
-**Upputuri Naga Rishita**  
-B.Tech Computer Science Engineering  
-Specialization: AI & Future Technology
+**Nagarishta Upputuri**  
+B.Tech CSE (AI & Future Technologies)  
+SRM University AP  
+
+---
+
+## License
+
+This project is open for learning and demonstration purposes.
