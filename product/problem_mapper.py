@@ -110,9 +110,10 @@ class ProblemMapper:
         )
 
         summary = (
-            f"The problem primarily affects {problem_type} and has direct "
-            f"impact on user experience and business outcomes."
-        )
+            f"We believe {problem_type} is the highest-leverage problem to address right now, "
+            f"because users are failing at a critical moment in their journey. "
+            f"This directly impacts both user trust and key business outcomes if left unresolved."
+            )
 
         return {
             "problem_type": problem_type,
