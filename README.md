@@ -4,9 +4,11 @@
 [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat&logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/downloads/)
 
-PM-GPT is an AI-powered **Product Management Copilot** designed to transform ambiguous product challenges into **structured insights, prioritized feature decisions, and defensible product roadmaps**.
+PM-GPT is an AI-powered **Product Management Copilot** that transforms ambiguous product challenges into **structured insights, prioritized feature decisions, and defensible product roadmaps**.
 
-This project is intentionally built to reflect **real-world product management thinking**, not surface-level automation. Every output mirrors how experienced Product Managers analyze problems, reason through trade-offs, and clearly communicate decisions to stakeholders and leadership.
+This project is intentionally built to reflect **real-world product management thinking**, not surface-level automation. Every output mirrors how experienced Product Managers analyze problems, reason through trade-offs, and communicate decisions clearly to stakeholders and leadership.
+
+> **Note:** This project was built as a **flagship portfolio project** to demonstrate **real-world product management decision-making**, not as a tutorial or toy application.
 
 🔗 **Live Demo:** https://pm-gpt-copilot.streamlit.app
 
@@ -14,17 +16,26 @@ This project is intentionally built to reflect **real-world product management t
 
 ## 🖼️ Screenshots
 
-![PM-GPT Overview](assets/screenshot-1.png)
-![Framework Comparison](assets/screenshot-2.png)
-![Roadmap Output](assets/screenshot-3.png)
+A visual walkthrough of PM-GPT’s end-to-end product reasoning flow:
+
+![Landing Screen](assets/01_landing_screen.png)
+![Problem Insight](assets/02_problem_insight.png)
+![Generated Features](assets/03_generated_features.png)
+![Framework Selection](assets/04_framework_selection.png)
+![Prioritization](assets/05_prioritization.png)
+![Roadmap Output](assets/06_Roadmap.png)
+![Executive Review](assets/07_decision_Executive_review.png)
+![PM Reasoning](assets/08_decisionreview_PM_reasoning.png)
 
 ---
 
 ## 🎥 Demo Video
 
-A short walkthrough of PM-GPT in action is available in the repository:
+A short product walkthrough demonstrating PM-GPT in action is available in the repository:
 
-📂 `demo/pm-gpt-demo.mp4`
+📂 `demo/pm-gpt-demo.webm`
+
+*(Optional: This may later be replaced with a hosted video link.)*
 
 ---
 
@@ -96,7 +107,7 @@ pm-gpt/
 - Demonstrating structured, defensible product thinking  
 - Recruiters evaluating real-world product decision-making ability  
 
-This project prioritizes **clarity, explainability, and reasoning quality** — the same standards expected in real-world PM teams and big-tech product organizations.
+This project prioritizes **clarity, explainability, and reasoning quality** — the same standards expected in real-world PM teams and BigTech product organizations.
 
 ---
 
