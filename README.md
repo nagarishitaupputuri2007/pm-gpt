@@ -84,12 +84,9 @@ This project prioritizes **clarity, explainability, and reasoning quality** — 
 
 ---
 
-
-
-
 ## 👩‍💻 Author
 
-**Naga Rishita Upputuri**  
+**Upputuri Naga Risthia**  
 B.Tech CSE (AI & Future Technologies)  
 SRM University AP  
 
