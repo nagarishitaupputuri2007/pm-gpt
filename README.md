@@ -4,20 +4,36 @@
 [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat&logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/downloads/)
 
-PM-GPT is an AI-powered **Product Management Copilot** that transforms ambiguous product challenges into **structured insights, prioritized feature decisions, and defensible product roadmaps**.
+PM-GPT is an AI-powered **Product Management Copilot** designed to transform ambiguous product challenges into **structured insights, prioritized feature decisions, and defensible product roadmaps**.
 
-This project is intentionally built to reflect **real-world PM thinking**, not surface-level automation. Every output mirrors how experienced Product Managers analyze problems, reason through trade-offs, and communicate decisions clearly to stakeholders and leadership.
+This project is intentionally built to reflect **real-world product management thinking**, not surface-level automation. Every output mirrors how experienced Product Managers analyze problems, reason through trade-offs, and clearly communicate decisions to stakeholders and leadership.
 
 🔗 **Live Demo:** https://pm-gpt-copilot.streamlit.app
+
+---
+
+## 🖼️ Screenshots
+
+![PM-GPT Overview](assets/screenshot-1.png)
+![Framework Comparison](assets/screenshot-2.png)
+![Roadmap Output](assets/screenshot-3.png)
+
+---
+
+## 🎥 Demo Video
+
+A short walkthrough of PM-GPT in action is available in the repository:
+
+📂 `demo/pm-gpt-demo.mp4`
 
 ---
 
 ## ✨ Key Capabilities
 
 ### 🎯 Problem Analysis
-- Identifies the true core problem behind vague product signals  
+- Identifies the true core problem behind vague or noisy product signals  
 - Maps user pain points, friction areas, and failure modes  
-- Frames problems using impact, urgency, and constraints  
+- Frames problems using impact, urgency, and real-world constraints  
 
 ### 🛠 Feature Ideation
 - Generates realistic, high-leverage solution ideas  
@@ -26,8 +42,8 @@ This project is intentionally built to reflect **real-world PM thinking**, not s
 
 ### ⚖️ Smart Prioritization
 - Selects the most appropriate framework (RICE, ICE, Kano, MoSCoW)  
-- Explains *why* a framework fits the situation  
-- Allows side-by-side comparison of prioritization outcomes  
+- Explains *why* a specific framework fits the situation  
+- Enables side-by-side comparison of prioritization outcomes  
 
 ### 📊 Decision Intelligence
 - Simulates executive and stakeholder pushback  
@@ -37,7 +53,7 @@ This project is intentionally built to reflect **real-world PM thinking**, not s
 ### 📅 Roadmap Generation
 - Builds a realistic 6-month product roadmap  
 - Balances strategy, execution, and resource constraints  
-- Exports a professional PDF with full reasoning  
+- Exports a professional PDF with full decision reasoning  
 
 ---
 
@@ -78,15 +94,15 @@ pm-gpt/
 - Aspiring Product Managers (APM / PM / Intern roles)  
 - PM interview preparation and case discussion practice  
 - Demonstrating structured, defensible product thinking  
-- Recruiters evaluating real-world decision-making ability  
+- Recruiters evaluating real-world product decision-making ability  
 
-This project prioritizes **clarity, explainability, and reasoning quality** — the same standards used in real PM teams.
+This project prioritizes **clarity, explainability, and reasoning quality** — the same standards expected in real-world PM teams and big-tech product organizations.
 
 ---
 
 ## 👩‍💻 Author
 
-**Upputuri Naga Risthia**  
+**Upputuri Naga Rishita**  
 B.Tech CSE (AI & Future Technologies)  
 SRM University AP  
 
