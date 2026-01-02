@@ -14,6 +14,22 @@ This project is intentionally built to reflect **real-world product management t
 
 ---
 
+## 📘 Product Journal (PM_GPT Copilot)
+
+I maintain a public journal documenting the **thinking, decisions, trade-offs, and reasoning** behind building PM_GPT Copilot.
+
+This journal focuses on:
+- Product thinking under ambiguity  
+- Framework-driven decision-making  
+- Design choices and trade-offs  
+- Long-term, intentional product development  
+
+### 📝 Day 1 — Building a Product That Teaches Product Thinking  
+🔗 https://medium.com/@urishita8888/pm-gpt-copilot-day-1-bf09b75486bb
+
+> This journal will continue as PM_GPT Copilot evolves.
+
+
 ## 🖼️ Screenshots
 
 A visual walkthrough of PM-GPT’s end-to-end product reasoning flow:
