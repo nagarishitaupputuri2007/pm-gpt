@@ -35,7 +35,7 @@ A short product walkthrough demonstrating PM-GPT in action is available in the r
 
 📂 `demo/pm-gpt-demo.webm`
 
-*(Optional: This may later be replaced with a hosted video link.)*
+*(This may later be replaced with a hosted video link.)*
 
 ---
 
