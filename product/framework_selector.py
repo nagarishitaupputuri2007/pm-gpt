@@ -1,18 +1,15 @@
 class FrameworkSelector:
     """
-    Enhanced Framework Selector (v4.1)
+    Enhanced Framework Selector (v4.3 – Balanced)
 
-    - Selects the most appropriate prioritization framework
-    - Uses problem type + semantic keyword analysis
-    - Deterministic tie-breaking with PM rationale
+    - Prevents RICE over-dominance
+    - Selects framework based on dominant PM intent
+    - Requires explicit comparative signals for RICE
     """
 
     def select(self, problem_type: str, summary: str) -> str:
         text = summary.lower()
 
-        # --------------------------------------------------
-        # Framework score initialization
-        # --------------------------------------------------
         framework_scores = {
             "RICE": 0,
             "ICE": 0,
@@ -21,90 +18,86 @@ class FrameworkSelector:
         }
 
         # --------------------------------------------------
-        # Analyze problem type
+        # Problem type signals
         # --------------------------------------------------
         if problem_type in ["performance", "speed", "optimization"]:
             framework_scores["ICE"] += 3
-            framework_scores["RICE"] += 1
+
+        elif problem_type in ["onboarding", "retention", "satisfaction"]:
+            framework_scores["Kano"] += 3
 
         elif problem_type in ["delivery", "timeline", "deadline"]:
             framework_scores["MoSCoW"] += 3
 
-        elif problem_type in ["onboarding", "retention", "satisfaction"]:
-            framework_scores["Kano"] += 3
-            framework_scores["RICE"] += 1
-
         elif problem_type in ["growth", "acquisition", "revenue"]:
             framework_scores["RICE"] += 2
-            framework_scores["ICE"] += 1
 
         # --------------------------------------------------
-        # Keyword-based semantic analysis
-        # --------------------------------------------------
-
-        # RICE → business impact & strategic planning
-        rice_indicators = [
-            "roi", "investment", "business impact",
-            "quarterly planning", "roadmap",
-            "strategic", "long-term", "growth", "revenue"
-        ]
-        if any(word in text for word in rice_indicators):
-            framework_scores["RICE"] += 2
-
         # ICE → experimentation & uncertainty
-        ice_indicators = [
-            "quick win", "experiment", "test", "mvp",
-            "validation", "hypothesis",
-            "assumption", "uncertain", "exploratory"
-        ]
-        if any(word in text for word in ice_indicators):
+        # --------------------------------------------------
+        if any(word in text for word in [
+            "experiment", "test", "mvp", "hypothesis",
+            "validation", "assumption", "uncertain"
+        ]):
             framework_scores["ICE"] += 2
 
-        # Kano → user emotion & expectations (NO delivery terms)
-        kano_indicators = [
-            "user satisfaction", "delight",
-            "expectation", "basic need",
-            "delighter", "satisfier", "frustration"
-        ]
-        if any(word in text for word in kano_indicators):
+        # --------------------------------------------------
+        # Kano → user emotion & expectations
+        # --------------------------------------------------
+        if any(word in text for word in [
+            "delight", "frustration", "user satisfaction",
+            "expectation", "pain point", "complaint"
+        ]):
             framework_scores["Kano"] += 2
 
-        # MoSCoW → delivery, urgency & prioritization
-        moscow_indicators = [
-            "must have", "should have", "could have", "won't have",
-            "critical", "important", "nice to have",
-            "deadline", "timebox", "sprint", "release"
-        ]
-        if any(word in text for word in moscow_indicators):
+        # --------------------------------------------------
+        # MoSCoW → execution & delivery
+        # --------------------------------------------------
+        if any(word in text for word in [
+            "must have", "should have", "could have",
+            "deadline", "sprint", "release", "timebox"
+        ]):
             framework_scores["MoSCoW"] += 2
 
         # --------------------------------------------------
-        # Special case: prioritization problems
+        # RICE → explicit comparative prioritization ONLY
+        # --------------------------------------------------
+        comparative_indicators = [
+            "compare", "trade-off", "which should we build",
+            "decide between", "rank", "prioritize between"
+        ]
+
+        scoring_indicators = [
+            "reach", "impact", "confidence", "effort",
+            "score", "scoring", "weighted"
+        ]
+
+        if (
+            any(word in text for word in comparative_indicators)
+            or all(word in text for word in ["impact", "effort"])
+        ):
+            framework_scores["RICE"] += 3
+
+        # --------------------------------------------------
+        # Generic prioritization (weak signal)
         # --------------------------------------------------
         if "prioritiz" in text:
             framework_scores["RICE"] += 1
             framework_scores["ICE"] += 1
 
         # --------------------------------------------------
-        # Safe fallback (no signals detected)
+        # Safe fallback
         # --------------------------------------------------
         if max(framework_scores.values()) == 0:
-            return "RICE"  # safest default for vague problems
+            return "RICE"
 
         # --------------------------------------------------
-        # Framework selection
+        # Deterministic selection
         # --------------------------------------------------
-        selected = max(framework_scores.items(), key=lambda x: x[1])[0]
+        top_score = max(framework_scores.values())
+        tied = [fw for fw, s in framework_scores.items() if s == top_score]
 
-        # --------------------------------------------------
-        # Tie-breaker logic
-        # Priority rationale:
-        # RICE > ICE > Kano > MoSCoW
-        # Business impact > Experimentation > UX > Delivery
-        # --------------------------------------------------
-        top_score = framework_scores[selected]
-        tied = [fw for fw, score in framework_scores.items() if score == top_score]
-
-        for fw in ["RICE", "ICE", "Kano", "MoSCoW"]:
+        # Priority based on PM intent clarity
+        for fw in ["ICE", "Kano", "RICE", "MoSCoW"]:
             if fw in tied:
                 return fw

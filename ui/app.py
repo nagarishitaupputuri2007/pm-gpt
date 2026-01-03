@@ -62,12 +62,33 @@ decision_mode = st.sidebar.radio(
     ["Auto (PM-GPT decides)", "Manual (I choose framework)"]
 )
 
+if "last_decision_mode" not in st.session_state:
+    st.session_state.last_decision_mode = decision_mode
+
+if st.session_state.last_decision_mode != decision_mode:
+    st.session_state.analysis_ready = False
+    st.session_state.analysis_payload = None
+    st.session_state.pdf_path = None
+    st.session_state.last_decision_mode = decision_mode
+
+
 manual_framework = None
 if decision_mode == "Manual (I choose framework)":
     manual_framework = st.sidebar.selectbox(
         "Choose Framework",
-        ["RICE", "ICE", "MoSCoW", "Kano"]
+        ["RICE", "ICE", "MoSCoW", "Kano"],
+        key="manual_framework"
     )
+
+    if "last_manual_framework" not in st.session_state:
+        st.session_state.last_manual_framework = manual_framework
+
+    if st.session_state.last_manual_framework != manual_framework:
+        st.session_state.analysis_ready = False
+        st.session_state.analysis_payload = None
+        st.session_state.pdf_path = None
+        st.session_state.last_manual_framework = manual_framework
+
 
 run_clicked = st.sidebar.button("🚀 Run PM-GPT")
 
@@ -90,6 +111,50 @@ problem_text = st.text_area(
 
 
 # --------------------------------------------------
+# FRAMEWORK-AWARE PROBLEM INSIGHT ADJUSTMENT
+# --------------------------------------------------
+def adjust_problem_insight(problem_data, framework):
+    adjusted = problem_data.copy()
+
+    if framework == "RICE":
+        adjusted["core_problem"] = (
+            "Multiple viable feature options exist, but it is unclear which will deliver the highest impact given limited effort."
+        )
+        adjusted["user_failure_point"] = (
+            "Users are not failing outright; the risk lies in making suboptimal prioritization decisions."
+        )
+        adjusted["success_definition"] = (
+            "Objectively prioritize features to maximize impact relative to effort."
+        )
+
+    elif framework == "ICE":
+        adjusted["core_problem"] = (
+            "There is uncertainty around which ideas will move key metrics, requiring fast validation."
+        )
+        adjusted["user_failure_point"] = (
+            "Users may not benefit if unvalidated ideas are scaled prematurely."
+        )
+        adjusted["success_definition"] = (
+            "Rapidly test assumptions to identify high-confidence opportunities."
+        )
+
+    elif framework == "MoSCoW":
+        adjusted["core_problem"] = (
+            "Scope clarity is needed to ensure timely and focused delivery."
+        )
+        adjusted["user_failure_point"] = (
+            "Users may experience delays if priorities are not clearly defined."
+        )
+        adjusted["success_definition"] = (
+            "Clearly define must-haves versus nice-to-haves for delivery."
+        )
+
+    # Kano keeps original emotional framing
+
+    return adjusted
+
+
+# --------------------------------------------------
 # MAIN PIPELINE
 # --------------------------------------------------
 if run_clicked and problem_text.strip():
@@ -99,7 +164,6 @@ if run_clicked and problem_text.strip():
     problem_type = problem_data.get("problem_type", "general")
     problem_summary = problem_data.get("summary", problem_text)
 
-    # SAFE defaults
     business_impact = problem_data.get(
         "business_impact",
         [
@@ -128,10 +192,13 @@ if run_clicked and problem_text.strip():
     if decision_mode == "Auto (PM-GPT decides)":
         framework = FrameworkSelector().select(
             problem_type=problem_type,
-            summary=problem_summary
+            summary=problem_text
         )
     else:
         framework = manual_framework
+
+    # ✅ Adjust problem insight AFTER framework is chosen
+    problem_data = adjust_problem_insight(problem_data, framework)
 
     framework_explanation = FrameworkExplainer().explain(framework, {})
 
@@ -139,7 +206,11 @@ if run_clicked and problem_text.strip():
     scored_features = StrategyResolver().resolve(framework, features)
 
     # 5️⃣ Roadmap
-    roadmap = RoadmapGenerator().generate(scored_features)
+    roadmap = RoadmapGenerator().generate(
+        scored_features,
+        framework=framework
+    )
+
 
     # 6️⃣ Judgment
     narrator = DecisionNarrator()
@@ -199,7 +270,7 @@ if run_clicked and problem_text.strip():
         st.subheader("🚨 Core Problem")
         st.error(problem_data.get("core_problem", problem_summary))
 
-        st.subheader("❌ Where Users Fail")
+        st.subheader("❓ Where Value Is At Risk")
         st.warning(problem_data.get("user_failure_point", "User friction detected"))
 
         st.subheader("📉 Business Impact (Why This Matters)")
@@ -261,35 +332,17 @@ if run_clicked and problem_text.strip():
         reasoning_tab, exec_tab = st.tabs(["🧠 PM Reasoning", "🏛 Executive Review"])
 
         with reasoning_tab:
-            st.markdown("### 📌 Framework Rationale")
             st.info(st.session_state.analysis_payload["reasoning"]["framework"])
-
-            st.markdown("### 📌 Prioritization Rationale")
             st.info(st.session_state.analysis_payload["reasoning"]["prioritization"])
-
-            st.markdown("### 📌 Roadmap Rationale")
             st.info(st.session_state.analysis_payload["reasoning"]["roadmap"])
-
-            st.markdown("### 📌 Trade-offs Considered")
             st.info(st.session_state.analysis_payload["reasoning"]["tradeoffs"])
-
-            st.markdown("### 📌 Success Metrics")
             st.info(st.session_state.analysis_payload["reasoning"]["metrics"])
 
         with exec_tab:
-            st.markdown("### ❌ What We Explicitly Did NOT Do")
             st.info(judgment.get("did_not_do", "No explicit exclusions documented."))
-
-            st.markdown("### 🎯 Primary Bet")
             st.success(judgment.get("primary_bet", "Primary bet identified."))
-
-            st.markdown("### ⚠️ Biggest Execution Risk")
             st.warning(judgment.get("execution_risk", "Execution risk identified."))
-
-            st.markdown("### ⚖️ Key Trade-off")
             st.info(judgment.get("tradeoff", "Trade-off evaluated."))
-
-            st.markdown("### 🧑‍💼 Leadership Pushback & PM Response")
             st.markdown(judgment.get("leadership_exchange", "No leadership objections recorded."))
 
 

@@ -2,22 +2,21 @@
 
 class RoadmapGenerator:
     """
-    Generates a 6-month product roadmap from prioritized features.
+    Framework-aware 6-month Product Roadmap Generator
 
     Accepts:
     - List[dict]  → [{"feature": "...", "score": ...}]
     - List[str]   → ["feature 1", "feature 2"]
 
-    Never assumes pandas. Never crashes.
+    Never crashes. Backward compatible.
     """
 
-    def generate(self, scored_features):
+    def generate(self, scored_features, framework="RICE"):
         # --------------------------------------------------
         # Normalize input to List[str]
         # --------------------------------------------------
         features = []
 
-        # Case 1: List of dicts (RICE / ICE / Kano / MoSCoW)
         if isinstance(scored_features, list) and len(scored_features) > 0:
             first_item = scored_features[0]
 
@@ -28,7 +27,6 @@ class RoadmapGenerator:
             else:
                 raise ValueError("Unsupported feature structure in roadmap generator")
 
-        # Empty case
         elif scored_features == []:
             features = []
 
@@ -36,38 +34,78 @@ class RoadmapGenerator:
             raise ValueError("Unsupported scored_features type passed to RoadmapGenerator")
 
         # --------------------------------------------------
-        # Roadmap buckets
+        # Bucket features (semantic grouping)
         # --------------------------------------------------
         foundations = []
         enablement = []
+        experimentation = []
         expansion = []
 
         for feature in features:
             text = feature.lower()
 
-            # Q1 — Stabilize & Activate
             if any(k in text for k in [
                 "onboarding", "activation", "crash", "performance",
-                "startup", "stability", "reliability", "value"
+                "startup", "stability", "reliability", "value", "bug"
             ]):
                 foundations.append(feature)
 
-            # Still Q1 — enable usage
             elif any(k in text for k in [
-                "guidance", "nudge", "progress", "engagement", "clarify"
+                "guidance", "nudge", "progress", "engagement",
+                "clarify", "education", "tooltip", "feedback"
             ]):
                 enablement.append(feature)
 
-            # Q2 — Growth & Scale
+            elif any(k in text for k in [
+                "experiment", "test", "pilot", "mvp",
+                "hypothesis", "trial", "validate"
+            ]):
+                experimentation.append(feature)
+
             else:
                 expansion.append(feature)
 
         # --------------------------------------------------
-        # Final roadmap (6 months)
+        # Framework-specific roadmap shaping
         # --------------------------------------------------
-        roadmap = {
-            "Q1 (0–3 months) — Stabilize & Activate": foundations + enablement,
-            "Q2 (3–6 months) — Optimize & Grow": expansion
-        }
+        if framework == "ICE":
+            return {
+                "Q1 (0–3 months) — Learn & Validate": (
+                    experimentation + enablement + foundations
+                ),
+                "Q2 (3–6 months) — Scale What Works": (
+                    expansion
+                )
+            }
 
-        return roadmap
+        if framework == "Kano":
+            return {
+                "Q1 (0–3 months) — Fix Basics": (
+                    foundations + enablement
+                ),
+                "Q2 (3–6 months) — Delight & Differentiate": (
+                    expansion
+                )
+            }
+
+        if framework == "MoSCoW":
+            return {
+                "Q1 (0–3 months) — Deliver Must-Haves": (
+                    foundations
+                ),
+                "Q2 (3–6 months) — Expand Scope": (
+                    enablement + expansion
+                )
+            }
+
+        # --------------------------------------------------
+        # Default: RICE
+        # --------------------------------------------------
+        return {
+            "Q1 (0–3 months) — Highest Impact First": (
+                foundations + enablement
+            ),
+            "Q2 (3–6 months) — Compound Impact": (
+                expansion
+            )
+        }
