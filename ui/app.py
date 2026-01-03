@@ -149,8 +149,6 @@ def adjust_problem_insight(problem_data, framework):
             "Clearly define must-haves versus nice-to-haves for delivery."
         )
 
-    # Kano keeps original emotional framing
-
     return adjusted
 
 
@@ -163,6 +161,9 @@ if run_clicked and problem_text.strip():
     problem_data = ProblemMapper().map(problem_text)
     problem_type = problem_data.get("problem_type", "general")
     problem_summary = problem_data.get("summary", problem_text)
+
+    # ✅ MINIMAL POLISH (RAW SIGNAL)
+    problem_data["raw_signal"] = problem_text.strip()
 
     business_impact = problem_data.get(
         "business_impact",
@@ -197,7 +198,6 @@ if run_clicked and problem_text.strip():
     else:
         framework = manual_framework
 
-    # ✅ Adjust problem insight AFTER framework is chosen
     problem_data = adjust_problem_insight(problem_data, framework)
 
     framework_explanation = FrameworkExplainer().explain(framework, {})
@@ -211,7 +211,6 @@ if run_clicked and problem_text.strip():
         framework=framework
     )
 
-
     # 6️⃣ Judgment
     narrator = DecisionNarrator()
     judgment = PMJudgmentEngine().generate(
@@ -221,9 +220,6 @@ if run_clicked and problem_text.strip():
         roadmap=roadmap
     )
 
-    # --------------------------------------------------
-    # SAVE ANALYSIS
-    # --------------------------------------------------
     def safe_call(fn, *args):
         try:
             return fn(*args)
@@ -267,7 +263,16 @@ if run_clicked and problem_text.strip():
     # TAB 1: PROBLEM INSIGHT
     # -------------------------
     with tabs[0]:
-        st.subheader("🚨 Core Problem")
+        st.subheader("🧾 Raw Problem Signal")
+
+        st.caption(
+            "This is the raw, unfiltered problem signal exactly as received from users and stakeholders — "
+            "before any PM synthesis, prioritization, or decision framing."
+        )
+        st.info(problem_data.get("raw_signal", problem_summary))
+
+
+        st.subheader("🚨 PM-Reframed Core Problem")
         st.error(problem_data.get("core_problem", problem_summary))
 
         st.subheader("❓ Where Value Is At Risk")
@@ -328,22 +333,49 @@ if run_clicked and problem_text.strip():
     # -------------------------
     # TAB 6: DECISION REVIEW
     # -------------------------
+    # -------------------------
+    # TAB 6: DECISION REVIEW
+    # -------------------------
     with tabs[5]:
         reasoning_tab, exec_tab = st.tabs(["🧠 PM Reasoning", "🏛 Executive Review"])
-
         with reasoning_tab:
+            st.markdown("### 📌 Why this framework fits the problem")
             st.info(st.session_state.analysis_payload["reasoning"]["framework"])
+            
+            st.markdown("### 📌 Why this initiative comes first")
             st.info(st.session_state.analysis_payload["reasoning"]["prioritization"])
+            
+            st.markdown("### 📌 Why this sequencing reduces risk")
             st.info(st.session_state.analysis_payload["reasoning"]["roadmap"])
+            
+            st.markdown("### 📌 What we consciously chose not to do")
             st.info(st.session_state.analysis_payload["reasoning"]["tradeoffs"])
+            
+            st.markdown("### 📌 How we will know this decision worked")
             st.info(st.session_state.analysis_payload["reasoning"]["metrics"])
 
-        with exec_tab:
-            st.info(judgment.get("did_not_do", "No explicit exclusions documented."))
-            st.success(judgment.get("primary_bet", "Primary bet identified."))
-            st.warning(judgment.get("execution_risk", "Execution risk identified."))
-            st.info(judgment.get("tradeoff", "Trade-off evaluated."))
-            st.markdown(judgment.get("leadership_exchange", "No leadership objections recorded."))
+    with exec_tab:
+        st.markdown("### ❌ What we explicitly deprioritized to protect focus")
+        st.info(judgment.get("did_not_do", "No explicit exclusions documented."))
+        
+        st.markdown("### 🎯 The single bet we are making")
+        st.success(judgment.get("primary_bet", "Primary bet identified."))
+        
+        st.markdown("### ⚠️ The biggest execution risk leadership should watch")
+        st.warning(judgment.get("execution_risk", "Execution risk identified."))
+        
+        st.markdown("### ⚖️ The trade-off we are consciously accepting")
+        st.info(judgment.get("tradeoff", "Trade-off evaluated."))
+        
+        st.markdown("### 🧑‍💼 Anticipated leadership pushback and PM response")
+        st.markdown(
+            judgment.get(
+                "leadership_exchange",
+                "No leadership objections recorded."
+            )
+        )
+
+
 
 
 # --------------------------------------------------
