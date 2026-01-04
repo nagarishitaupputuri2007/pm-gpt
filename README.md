@@ -24,12 +24,18 @@ This journal focuses on:
 - Design trade-offs and scope boundaries  
 - Intentional, long-term product development  
 
-### 📝 Day 1 — Building a Product That Teaches Product Thinking  
-🔗 https://medium.com/@urishita8888/pm-gpt-copilot-day-1-bf09b75486bb
+### 📝 Journal Entries
+
+- **Journal Entry 1 — Building a Product That Teaches Product Thinking**  
+  Explores ambiguity as the core challenge in Product Management and the vision behind PM-GPT Copilot.  
+  🔗 https://medium.com/@urishita8888/pm-gpt-copilot-day-1-bf09b75486bb
+
+- **Journal Entry 2 — Choosing the Right Framework Under Ambiguity**  
+  Examines why framework selection is a product decision, how misapplied frameworks lead to poor outcomes, and how PM-GPT reasons intentionally under uncertainty.  
+  🔗 https://medium.com/@urishita8888/choosing-the-right-framework-under-ambiguity-c758bc7c03dc
 
 > This journal will continue as PM-GPT evolves.
 
----
 
 ## 🖼️ Screenshots
 
