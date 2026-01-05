@@ -34,7 +34,10 @@ This journal focuses on:
   Examines why framework selection is a product decision, how misapplied frameworks lead to poor outcomes, and how PM-GPT reasons intentionally under uncertainty.  
   🔗 https://medium.com/@urishita8888/choosing-the-right-framework-under-ambiguity-c758bc7c03dc
 
-> This journal will continue as PM-GPT evolves.
+- **Journal Entry 3 — Product Decisions Are Trade-offs, Not Choices**  
+  Explores how real product decisions are shaped by constraints, opportunity costs, and the discipline of saying no, emphasizing judgment over certainty in PM work.  
+  🔗 https://medium.com/@urishita8888/product-decisions-are-trade-offs-not-choices-6e138ff89a1f
+
 
 
 ## 🖼️ Screenshots
