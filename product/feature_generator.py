@@ -3,20 +3,44 @@ from typing import List
 
 class FeatureGenerator:
     """
-    Phase 4 – Context-Aware Feature Generation (v4.0)
+    Phase 4 – Context-Aware Feature Generation (v4.1)
 
-    - Generates DIFFERENT features for the SAME problem_type
+    - Generates DIFFERENT features based on problem_type + summary
     - Uses PM mental models:
         • Funnel stage
         • Dominant business risk
-    - Prevents repetitive, generic outputs
+    - Normalizes inputs to avoid silent fallbacks
     """
 
     def generate(self, problem_type: str, summary: str) -> List[str]:
-        text = summary.lower()
+        # --------------------------------------------------
+        # NORMALIZE INPUTS (CRITICAL FIX)
+        # --------------------------------------------------
+        problem_type = (problem_type or "").lower().strip()
+        text = (summary or "").lower()
+
+        # Map real-world labels to canonical problem types
+        PROBLEM_TYPE_ALIASES = {
+            "activation": "onboarding",
+            "signup": "onboarding",
+            "kyc": "onboarding",
+            "churn": "retention",
+            "engagement": "retention",
+            "reliability": "performance",
+            "stability": "performance",
+            "latency": "performance",
+            "execution": "delivery",
+            "shipping": "delivery",
+            "nps": "satisfaction",
+            "feedback": "satisfaction",
+            "growth_rate": "growth",
+            "conversion": "growth",
+        }
+
+        problem_type = PROBLEM_TYPE_ALIASES.get(problem_type, problem_type)
 
         # --------------------------------------------------
-        # DERIVED PM CONTEXT (LIGHTWEIGHT, RULE-BASED)
+        # DERIVED PM CONTEXT (RULE-BASED, LIGHTWEIGHT)
         # --------------------------------------------------
 
         # Funnel stage inference
@@ -24,8 +48,12 @@ class FeatureGenerator:
             funnel = "activation"
         elif any(k in text for k in ["engagement", "repeat", "habit", "usage"]):
             funnel = "engagement"
-        elif any(k in text for k in ["pricing", "upgrade", "monetization", "conversion"]):
+        elif any(k in text for k in [
+            "pricing", "upgrade", "monetization", "conversion",
+            "trial", "free trial", "trial ends", "paywall"
+        ]):
             funnel = "monetization"
+
         elif any(k in text for k in ["latency", "reliability", "downtime", "failure"]):
             funnel = "reliability"
         else:
@@ -34,8 +62,12 @@ class FeatureGenerator:
         # Risk inference
         if any(k in text for k in ["compliance", "regulatory", "kyc", "audit"]):
             risk = "compliance"
-        elif any(k in text for k in ["revenue", "pricing", "upgrade", "churn"]):
+        elif any(k in text for k in [
+            "revenue", "pricing", "upgrade", "churn",
+            "trial", "trial ends", "not converting"
+        ]):
             risk = "revenue"
+
         elif any(k in text for k in ["trust", "confidence", "credibility"]):
             risk = "trust"
         elif any(k in text for k in ["support", "cost", "operations"]):
@@ -63,7 +95,7 @@ class FeatureGenerator:
                 "Reduce non-essential fields before the user reaches first value",
                 "Introduce a progressive onboarding flow that unlocks steps only when required",
                 "Display a clear progress indicator tied to first-value completion",
-                "Add inline microcopy to explain why each required step exists",
+                "Add inline microcopy explaining why each required step exists",
                 "Surface a first-success confirmation moment to reinforce completion",
             ]
 
@@ -83,9 +115,9 @@ class FeatureGenerator:
                 "Introduce early-warning signals to detect disengaging users",
                 "Trigger re-engagement nudges based on drop-off behavior patterns",
                 "Add habit-forming reminders tied to core value moments",
-                "Personalize content or workflows based on prior usage",
+                "Personalize workflows based on prior usage behavior",
                 "Create lightweight win-back flows for inactive users",
-                "Introduce lifecycle-based messaging instead of generic notifications",
+                "Replace generic notifications with lifecycle-based messaging",
             ]
 
         # -------- PERFORMANCE --------
@@ -101,7 +133,7 @@ class FeatureGenerator:
         # -------- DELIVERY --------
         if problem_type == "delivery":
             return [
-                "Introduce a single owner model for roadmap commitments",
+                "Introduce a single-owner model for roadmap commitments",
                 "Establish must-ship vs nice-to-have delivery tiers",
                 "Limit work-in-progress to reduce context switching",
                 "Create quarterly delivery confidence checkpoints",
@@ -121,17 +153,17 @@ class FeatureGenerator:
         # -------- GROWTH --------
         if problem_type == "growth":
             return [
-                "Optimize conversion points with reduced cognitive load",
+                "Optimize conversion points by reducing cognitive load",
                 "Introduce referral or viral loops tied to core value moments",
                 "Experiment with pricing or packaging for expansion revenue",
                 "Improve activation-to-conversion handoff",
                 "Instrument growth experiments with clear success metrics",
             ]
 
-        # -------- SAFE DEFAULT --------
+        # -------- SAFE DEFAULT (ONLY WHEN INPUT IS TRULY AMBIGUOUS) --------
         return [
-            "Clarify core user value proposition",
-            "Reduce unnecessary friction in primary workflows",
-            "Improve feedback loops between users and the product",
-            "Prioritize changes with measurable user impact",
+            "Clarify the primary user value being delivered",
+            "Reduce friction in the most frequently used workflows",
+            "Introduce feedback loops to validate user impact",
+            "Prioritize changes tied to measurable outcomes",
         ]

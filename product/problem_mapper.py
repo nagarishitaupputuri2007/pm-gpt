@@ -5,12 +5,23 @@ class ProblemMapper:
         # -------------------------
         # PROBLEM TYPE DETECTION
         # -------------------------
-        if any(k in text for k in ["onboarding", "signup", "activation"]):
+        if any(k in text for k in ["onboarding", "signup", "activation", "kyc"]):
             problem_type = "activation"
+
+        elif any(k in text for k in [
+            "trial", "free trial", "trial ends",
+            "users leave after trial",
+            "not converting after trial",
+            "post-trial"
+        ]):
+            problem_type = "retention"
+
         elif any(k in text for k in ["churn", "retention", "downgrade"]):
             problem_type = "retention"
+
         elif any(k in text for k in ["slow", "performance", "latency", "reliability"]):
             problem_type = "performance"
+
         else:
             problem_type = "general"
 
@@ -110,7 +121,7 @@ class ProblemMapper:
         )
 
         # -------------------------
-        # PM-GRADE SUMMARY (COSMETIC, CONSISTENT)
+        # PM-GRADE SUMMARY
         # -------------------------
         if problem_type == "activation":
             summary = (
@@ -123,23 +134,20 @@ class ProblemMapper:
         elif problem_type == "retention":
             summary = (
                 "This is a high-impact retention problem affecting the most valuable segment "
-                "of the user base. Power users are disengaging at moments where the product is "
-                "expected to deliver advanced value, leading to churn and revenue contraction. "
-                "If left unaddressed, this erosion compounds over time, weakening lifetime value "
-                "and long-term growth. This makes it a high-leverage problem to address now."
+                "of the user base. Users disengage after experiencing initial value, leading "
+                "to churn and revenue contraction. If left unaddressed, this erosion compounds "
+                "over time, weakening lifetime value and long-term growth."
             )
         elif problem_type == "performance":
             summary = (
                 "This problem undermines trust in the product during critical usage moments. "
                 "Reliability and performance issues disproportionately affect core workflows, "
-                "increasing churn risk and operational cost. Addressing this is essential "
-                "before scaling further growth. This makes it a high-leverage problem to address now."
+                "increasing churn risk and operational cost."
             )
         else:
             summary = (
                 "This problem negatively impacts both user experience and business outcomes "
-                "at a critical point in the product journey. "
-                "This makes it a high-leverage problem to address now."
+                "at a critical point in the product journey."
             )
 
         return {

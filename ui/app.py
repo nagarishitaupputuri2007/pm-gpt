@@ -151,6 +151,23 @@ def adjust_problem_insight(problem_data, framework):
 
     return adjusted
 
+def infer_problem_type_from_text(text: str) -> str:
+    t = text.lower()
+
+    if any(k in t for k in ["onboarding", "signup", "kyc", "activation", "first value"]):
+        return "onboarding"
+    if any(k in t for k in ["churn", "retention", "drop off", "inactive"]):
+        return "retention"
+    if any(k in t for k in ["latency", "downtime", "failure", "reliability"]):
+        return "performance"
+    if any(k in t for k in ["delivery", "delay", "execution", "roadmap"]):
+        return "delivery"
+    if any(k in t for k in ["satisfaction", "nps", "feedback", "complaints"]):
+        return "satisfaction"
+    if any(k in t for k in ["growth", "conversion", "monetization", "pricing"]):
+        return "growth"
+
+    return "general"
 
 # --------------------------------------------------
 # MAIN PIPELINE
@@ -160,6 +177,9 @@ if run_clicked and problem_text.strip():
     # 1️⃣ Problem Mapping
     problem_data = ProblemMapper().map(problem_text)
     problem_type = problem_data.get("problem_type", "general")
+    if problem_type == "general":
+        problem_type = infer_problem_type_from_text(problem_text)
+
     problem_summary = problem_data.get("summary", problem_text)
 
     # ✅ MINIMAL POLISH (RAW SIGNAL)
