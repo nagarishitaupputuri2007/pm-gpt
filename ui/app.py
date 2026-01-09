@@ -353,11 +353,18 @@ if run_clicked and problem_text.strip():
     # -------------------------
     # TAB 6: DECISION REVIEW
     # -------------------------
-    # -------------------------
-    # TAB 6: DECISION REVIEW
-    # -------------------------
+
+    if decision_mode == "Auto (PM-GPT decides)":
+        framework = FrameworkSelector().select(
+            problem_type=problem_type,
+            summary=problem_text
+        )
+    else:
+        framework = manual_framework
+
     with tabs[5]:
         reasoning_tab, exec_tab = st.tabs(["🧠 PM Reasoning", "🏛 Executive Review"])
+
         with reasoning_tab:
             st.markdown("### 📌 Why this framework fits the problem")
             st.info(st.session_state.analysis_payload["reasoning"]["framework"])
@@ -374,28 +381,26 @@ if run_clicked and problem_text.strip():
             st.markdown("### 📌 How we will know this decision worked")
             st.info(st.session_state.analysis_payload["reasoning"]["metrics"])
 
-    with exec_tab:
-        st.markdown("### ❌ What we explicitly deprioritized to protect focus")
-        st.info(judgment.get("did_not_do", "No explicit exclusions documented."))
-        
-        st.markdown("### 🎯 The single bet we are making")
-        st.success(judgment.get("primary_bet", "Primary bet identified."))
-        
-        st.markdown("### ⚠️ The biggest execution risk leadership should watch")
-        st.warning(judgment.get("execution_risk", "Execution risk identified."))
-        
-        st.markdown("### ⚖️ The trade-off we are consciously accepting")
-        st.info(judgment.get("tradeoff", "Trade-off evaluated."))
-        
-        st.markdown("### 🧑‍💼 Anticipated leadership pushback and PM response")
-        st.markdown(
-            judgment.get(
-                "leadership_exchange",
-                "No leadership objections recorded."
+        with exec_tab:
+            st.markdown("### ❌ What we explicitly deprioritized to protect focus")
+            st.info(judgment.get("did_not_do", "No explicit exclusions documented."))
+            
+            st.markdown("### 🎯 The single bet we are making")
+            st.success(judgment.get("primary_bet", "Primary bet identified."))
+            
+            st.markdown("### ⚠️ The biggest execution risk leadership should watch")
+            st.warning(judgment.get("execution_risk", "Execution risk identified."))
+            
+            st.markdown("### ⚖️ The trade-off we are consciously accepting")
+            st.info(judgment.get("tradeoff", "Trade-off evaluated."))
+            
+            st.markdown("### 🧑‍💼 Anticipated leadership pushback and PM response")
+            st.markdown(
+                judgment.get(
+                    "leadership_exchange",
+                    "No leadership objections recorded."
+                )
             )
-        )
-
-
 
 
 # --------------------------------------------------

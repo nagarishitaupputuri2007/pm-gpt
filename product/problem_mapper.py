@@ -9,14 +9,29 @@ class ProblemMapper:
             problem_type = "activation"
 
         elif any(k in text for k in [
-            "trial", "free trial", "trial ends",
+            # Explicit retention terms
+            "churn",
+            "retention",
+            "downgrade",
+
+            # Trial-related retention
+            "trial",
+            "free trial",
+            "trial ends",
             "users leave after trial",
             "not converting after trial",
-            "post-trial"
-        ]):
-            problem_type = "retention"
+            "post-trial",
 
-        elif any(k in text for k in ["churn", "retention", "downgrade"]):
+            # Behavioral retention (PM language)
+            "repeat order",
+            "repeat orders",
+            "low repeat",
+            "second order",
+            "come back",
+            "not returning",
+            "after first",
+            "week 1",
+        ]):
             problem_type = "retention"
 
         elif any(k in text for k in ["slow", "performance", "latency", "reliability"]):
@@ -58,53 +73,53 @@ class ProblemMapper:
             business_impact = [
                 "Lower activation and conversion rates",
                 "Higher customer acquisition cost due to drop-offs",
-                "Reduced downstream retention and monetization"
+                "Reduced downstream retention and monetization",
             ]
         elif problem_type == "retention":
             business_impact = [
                 "Increased churn among high-value users",
-                "Revenue loss from plan downgrades",
-                "Negative impact on lifetime value (LTV)"
+                "Revenue loss from reduced repeat usage or downgrades",
+                "Negative impact on lifetime value (LTV)",
             ]
         elif problem_type == "performance":
             business_impact = [
                 "Loss of trust among power users",
                 "Higher support and operational costs",
-                "Revenue risk from churn and reduced expansion"
+                "Revenue risk from churn and reduced expansion",
             ]
         else:
             business_impact = [
                 "Negative impact on key product KPIs",
                 "Reduced user satisfaction",
-                "Long-term business risk if unresolved"
+                "Long-term business risk if unresolved",
             ]
 
         # -------------------------
-        # CONSTRAINTS
+        # EXECUTION CONSTRAINTS
         # -------------------------
         if problem_type == "activation":
             constraints = [
                 "Onboarding changes must not increase compliance or fraud risk",
                 "Engineering capacity is limited for major flow rewrites",
-                "Experiments must avoid harming existing conversion funnels"
+                "Experiments must avoid harming existing conversion funnels",
             ]
         elif problem_type == "retention":
             constraints = [
                 "Must prioritize high-value user segments",
-                "Changes should not disrupt existing customer workflows",
-                "Engineering focus is split across multiple roadmap initiatives"
+                "Behavioral changes require time to validate impact",
+                "Engineering focus is split across multiple roadmap initiatives",
             ]
         elif problem_type == "performance":
             constraints = [
                 "System changes must avoid downtime or regressions",
                 "Improvements must be shipped incrementally",
-                "Observability and monitoring coverage is limited"
+                "Observability and monitoring coverage is limited",
             ]
         else:
             constraints = [
                 "Limited engineering capacity",
                 "Need to balance speed with quality",
-                "Execution risk must be carefully managed"
+                "Execution risk must be carefully managed",
             ]
 
         # -------------------------
@@ -128,15 +143,14 @@ class ProblemMapper:
                 "This is a critical activation problem occurring at a high-leverage moment "
                 "in the user journey. Users are dropping off before reaching first value, "
                 "which directly reduces conversion efficiency and inflates acquisition costs. "
-                "If left unresolved, this bottleneck compounds downstream retention and monetization losses. "
-                "This makes it a high-leverage problem to address now."
+                "If left unresolved, this bottleneck compounds downstream retention and monetization losses."
             )
         elif problem_type == "retention":
             summary = (
                 "This is a high-impact retention problem affecting the most valuable segment "
-                "of the user base. Users disengage after experiencing initial value, leading "
-                "to churn and revenue contraction. If left unaddressed, this erosion compounds "
-                "over time, weakening lifetime value and long-term growth."
+                "of the user base. Users disengage after initial value realization, leading "
+                "to reduced repeat usage and revenue contraction. If left unaddressed, this erosion "
+                "compounds over time and weakens long-term growth."
             )
         elif problem_type == "performance":
             summary = (
@@ -157,5 +171,5 @@ class ProblemMapper:
             "business_impact": business_impact,
             "constraints": constraints,
             "success_definition": success_definition,
-            "summary": summary
+            "summary": summary,
         }
