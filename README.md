@@ -26,9 +26,12 @@ This journal focuses on:
 
 ### 📝 Journal Entries
 
+> These entries document *how and why* PM-GPT makes decisions — not just *what* it outputs.
+
 - **Journal Entry 1 — Building a Product That Teaches Product Thinking**  
   Explores ambiguity as the core challenge in Product Management and the vision behind PM-GPT Copilot.  
   🔗 https://medium.com/@urishita8888/pm-gpt-copilot-day-1-bf09b75486bb
+  
 
 - **Journal Entry 2 — Choosing the Right Framework Under Ambiguity**  
   Examines why framework selection is a product decision, how misapplied frameworks lead to poor outcomes, and how PM-GPT reasons intentionally under uncertainty.  
@@ -37,6 +40,8 @@ This journal focuses on:
 - **Journal Entry 3 — Product Decisions Are Trade-offs, Not Choices**  
   Explores how real product decisions are shaped by constraints, opportunity costs, and the discipline of saying no, emphasizing judgment over certainty in PM work.  
   🔗 https://medium.com/@urishita8888/product-decisions-are-trade-offs-not-choices-6e138ff89a1f
+
+  > This project and journal are actively evolving as PM-GPT grows in scope and depth.
 
 
 
